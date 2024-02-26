@@ -7,8 +7,9 @@
 #include <arpa/inet.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "server.h"
+#include "server/server.h"
 #include <openssl/err.h>
+
 #define MAX_BUFFER_SIZE 1024
 
 Server *server_init(const char *key_path, const char *cert_path)

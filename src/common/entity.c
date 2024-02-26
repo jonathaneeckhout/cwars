@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <entity.h>
+#include <common/entity.h>
 
 Entity entity_create(Vector2D position, Vector2D velocity, int radius)
 {

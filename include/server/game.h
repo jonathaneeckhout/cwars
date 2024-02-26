@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include <stdbool.h>
-#include "server.h"
+#include "server/server.h"
 
 typedef struct
 {

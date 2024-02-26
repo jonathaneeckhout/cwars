@@ -1,7 +1,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <vector.h>
+#include <common/vector.h>
 
 typedef struct
 {

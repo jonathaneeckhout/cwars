@@ -3,12 +3,9 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "config.h"
-#include "utils.h"
-#include "game.h"
-
-#define FPS 10
-#define MICROSECONDS_PER_FRAME 1000000 / FPS
+#include "server/config.h"
+#include "common/utils.h"
+#include "server/game.h"
 
 static bool running = true;
 

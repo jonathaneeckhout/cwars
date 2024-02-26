@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include "game.h"
-#include "utils.h"
+#include "server/game.h"
+#include "common/utils.h"
 
 Game *game = NULL;
 
