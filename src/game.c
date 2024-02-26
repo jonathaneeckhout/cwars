@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
-#include "game.h"
+
+#include "config.h"
 #include "utils.h"
+#include "game.h"
 
 #define FPS 10
 #define MICROSECONDS_PER_FRAME 1000000 / FPS
@@ -11,26 +13,26 @@
 static bool running = true;
 
 // Function to handle input
-void game_input()
+static void game_input()
 {
     // TODO: Implement input handling logic
 }
 
 // Function to update game state
-void game_update()
+static void game_update()
 {
     printf("Updating game state\n");
 }
 
 // Function to render output
-void game_render()
+static void game_render()
 {
     // TODO: Implement rendering logic
 }
 
-void game_run()
+void game_run(Game *game)
 {
-    running = true;
+    game->running = true;
 
     while (running)
     {
@@ -48,7 +50,35 @@ void game_run()
     }
 }
 
-void game_stop()
+void game_stop(Game *game)
 {
-    running = false;
+    game->running = false;
+}
+
+Game *game_init()
+{
+    Game *game = malloc(sizeof(Game));
+    if (game == NULL)
+    {
+        perror("Failed to allocate memory for game");
+        return NULL;
+    }
+
+    game->running = false;
+
+    game->server = server_init(PRIVATE_KEY_FILE, CERTIFICATE_FILE);
+    if (game->server == NULL)
+    {
+        free(game);
+        return NULL;
+    }
+
+    return game;
+}
+
+void game_cleanup(Game **game)
+{
+    server_cleanup(&(*game)->server);
+    free(*game);
+    *game = NULL;
 }

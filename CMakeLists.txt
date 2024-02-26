@@ -33,4 +33,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_executable(cwars ${SOURCE_FILES})
 
 # Add math library
-target_link_libraries(cwars m)
+target_link_libraries(cwars m ssl crypto)

@@ -2,18 +2,18 @@
 #define GAME_H
 
 #include <stdbool.h>
+#include "server.h"
 
-// Function to handle input
-void game_input();
+typedef struct
+{
+    bool running;
+    Server *server;
+} Game;
 
-// Function to update game state
-void game_update();
+Game *game_init();
+void game_cleanup(Game **game);
 
-// Function to render output
-void game_render();
-
-void game_run();
-
-void game_stop();
+void game_run(Game *game);
+void game_stop(Game *game);
 
 #endif /* GAME_H */

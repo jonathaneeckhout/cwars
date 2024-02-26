@@ -7,26 +7,26 @@
 #include <arpa/inet.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-
+#include "server.h"
+#include <openssl/err.h>
 #define MAX_BUFFER_SIZE 1024
 
-typedef struct
+Server *server_init(const char *key_path, const char *cert_path)
 {
-    int sockfd;
-    SSL_CTX *ctx;
-    SSL *ssl;
-} Server;
+    Server *server = malloc(sizeof(Server));
+    if (server == NULL)
+    {
+        perror("Failed to allocate memory for server");
+        return NULL;
+    }
 
-Server server;
-
-void server_init()
-{
     // Create a UDP socket
-    server.sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (server.sockfd < 0)
+    server->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (server->sockfd < 0)
     {
         perror("Failed to create socket");
-        exit(EXIT_FAILURE);
+        free(server); // Free the allocated memory
+        return NULL;
     }
 
     // Set up server address
@@ -37,57 +37,68 @@ void server_init()
     server_addr.sin_port = htons(12345);
 
     // Bind the socket to the server address
-    if (bind(server.sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    if (bind(server->sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         perror("Failed to bind socket");
-        close(server.sockfd);
-        exit(EXIT_FAILURE);
+        close(server->sockfd);
+        free(server); // Free the allocated memory
+        return NULL;
     }
 
     // Set up DTLS context
-    server.ctx = SSL_CTX_new(DTLS_server_method());
-    if (server.ctx == NULL)
+    server->ctx = SSL_CTX_new(DTLS_server_method());
+    if (server->ctx == NULL)
     {
         perror("Failed to create DTLS context");
-        close(server.sockfd);
-        exit(EXIT_FAILURE);
+        close(server->sockfd);
+        free(server); // Free the allocated memory
+        return NULL;
     }
 
     // Load server certificate and private key
-    if (SSL_CTX_use_certificate_file(server.ctx, "server.crt", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate_file(server->ctx, cert_path, SSL_FILETYPE_PEM) != 1)
     {
+        ERR_print_errors_fp(stderr);
         perror("Failed to load server certificate");
-        SSL_CTX_free(server.ctx);
-        close(server.sockfd);
-        exit(EXIT_FAILURE);
+        SSL_CTX_free(server->ctx);
+        close(server->sockfd);
+        free(server); // Free the allocated memory
+        return NULL;
     }
-    if (SSL_CTX_use_PrivateKey_file(server.ctx, "server.key", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey_file(server->ctx, key_path, SSL_FILETYPE_PEM) != 1)
     {
+        ERR_print_errors_fp(stderr);
         perror("Failed to load server private key");
-        SSL_CTX_free(server.ctx);
-        close(server.sockfd);
-        exit(EXIT_FAILURE);
+        SSL_CTX_free(server->ctx);
+        close(server->sockfd);
+        free(server); // Free the allocated memory
+        return NULL;
     }
 
     // Set up DTLS session
-    server.ssl = SSL_new(server.ctx);
-    if (server.ssl == NULL)
+    server->ssl = SSL_new(server->ctx);
+    if (server->ssl == NULL)
     {
         perror("Failed to create DTLS session");
-        SSL_CTX_free(server.ctx);
-        close(server.sockfd);
-        exit(EXIT_FAILURE);
+        SSL_CTX_free(server->ctx);
+        close(server->sockfd);
+        free(server); // Free the allocated memory
+        return NULL;
     }
-    SSL_set_fd(server.ssl, server.sockfd);
+    SSL_set_fd(server->ssl, server->sockfd);
+
+    return server;
 }
 
-void server_cleanup()
+void server_cleanup(Server **server)
 {
     // Clean up
-    SSL_shutdown(server.ssl);
-    SSL_free(server.ssl);
-    SSL_CTX_free(server.ctx);
-    close(server.sockfd);
+    SSL_shutdown((*server)->ssl);
+    SSL_free((*server)->ssl);
+    SSL_CTX_free((*server)->ctx);
+    close((*server)->sockfd);
+    free(*server);
+    *server = NULL;
 }
 
 // void run() {
