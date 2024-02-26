@@ -12,8 +12,6 @@ void sig_handler(int UNUSED _sig)
     printf("Shutting down the game\n");
 
     game_stop(game);
-
-    exit(0);
 }
 
 int main()

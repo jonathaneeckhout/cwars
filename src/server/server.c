@@ -93,6 +93,8 @@ Server *server_init(const char *key_path, const char *cert_path)
 
 void server_cleanup(Server **server)
 {
+    printf("Cleaning up server\n");
+
     // Clean up
     SSL_shutdown((*server)->ssl);
     SSL_free((*server)->ssl);

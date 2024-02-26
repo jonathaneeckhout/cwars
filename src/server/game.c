@@ -7,7 +7,6 @@
 #include "common/utils.h"
 #include "server/game.h"
 
-static bool running = true;
 
 // Function to handle input
 static void game_input()
@@ -31,7 +30,7 @@ void game_run(Game *game)
 {
     game->running = true;
 
-    while (running)
+    while (game->running)
     {
 
         long start_time = get_time();
