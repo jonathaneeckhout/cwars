@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+
+#include "common/logging.h"
 #include "server/game.h"
 #include "common/utils.h"
 
@@ -9,18 +11,24 @@ Game *game = NULL;
 // Shut down if ctrl+c is pressed
 void sig_handler(int UNUSED _sig)
 {
-    printf("Shutting down the game\n");
+    log_info("Shutting down the game");
 
     game_stop(game);
 }
 
 int main()
 {
+
+    // Initialize the logging system
+    logging_init("server", LOG_DEBUG);
+
+    log_info("Starting the server");
+
     // Initialize the game
     game = game_init();
     if (game == NULL)
     {
-        perror("Failed to initialize the game");
+        log_error("Failed to initialize the game");
         return 1;
     }
 
@@ -32,6 +40,9 @@ int main()
 
     // Clean up
     game_cleanup(&game);
+
+    // Clean up the logging system
+    logging_cleanup();
 
     return 0;
 }

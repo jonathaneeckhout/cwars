@@ -8,22 +8,25 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
+#include "common/logging.h"
 #include "server/server.h"
+#include "server/client.h"
 
 Server *server_init(int port)
 {
     Server *server = malloc(sizeof(Server));
     if (server == NULL)
     {
-        printf("Failed to allocate memory for server\n");
+        log_error("Failed to allocate memory for server");
         return NULL;
     }
 
     server->sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (server->sockfd < 0)
     {
-        printf("Failed to create socket\n");
+        log_error("Failed to create socket");
         free(server);
         return NULL;
     }
@@ -31,17 +34,16 @@ Server *server_init(int port)
     int reuse = 1;
     if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
     {
-        printf("Failed to set socket option for address reuse\n");
+        log_error("Failed to set socket option for address reuse");
         close(server->sockfd);
         free(server);
         return NULL;
     }
 
-    // Set socket to non-blocking mode
     int flags = fcntl(server->sockfd, F_GETFL, 0);
     if (flags < 0)
     {
-        printf("Failed to get socket flags\n");
+        log_error("Failed to get socket flags");
         close(server->sockfd);
         free(server);
         return NULL;
@@ -49,7 +51,7 @@ Server *server_init(int port)
     flags |= O_NONBLOCK;
     if (fcntl(server->sockfd, F_SETFL, flags) < 0)
     {
-        printf("Failed to set socket flags\n");
+        log_error("Failed to set socket flags to non-blocking");
         close(server->sockfd);
         free(server);
         return NULL;
@@ -62,7 +64,7 @@ Server *server_init(int port)
 
     if (bind(server->sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        printf("Failed to bind socket\n");
+        log_error("Failed to bind socket to port %d\n", port);
         close(server->sockfd);
         free(server);
         return NULL;
@@ -70,13 +72,22 @@ Server *server_init(int port)
 
     if (listen(server->sockfd, 5) < 0)
     {
-        printf("Failed to listen on socket\n");
+        log_error("Failed to listen on socket");
         close(server->sockfd);
         free(server);
         return NULL;
     }
 
-    printf("Server started on port %d\n", port);
+    server->clients = linked_list_init();
+    if (server->clients == NULL)
+    {
+        log_error("Failed to initialize clients list");
+        close(server->sockfd);
+        free(server);
+        return NULL;
+    }
+
+    log_info("Server started on port %d", port);
 
     return server;
 }
@@ -87,6 +98,8 @@ void server_cleanup(Server **server)
     {
         return;
     }
+
+    linked_list_cleanup(&(*server)->clients, (void (*)(void **)) & client_cleanup);
 
     close((*server)->sockfd);
     free(*server);
@@ -114,7 +127,13 @@ void server_loop_once(Server *server)
         return;
     }
 
-    printf("Accepted connection\n");
+    Client *client = client_init(client_sockfd, client_addr);
+    if (client == NULL)
+    {
+        printf("Failed to initialize client\n");
+        close(client_sockfd);
+        return;
+    }
 
-    close(client_sockfd);
+    linked_list_append(server->clients, client);
 }

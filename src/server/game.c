@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include "common/logging.h"
 #include "server/config.h"
 #include "common/utils.h"
 #include "server/game.h"
@@ -16,7 +17,7 @@ static void game_input(Game *game)
 // Function to update game state
 static void game_update()
 {
-    printf("Updating game state\n");
+    log_info("Updating game state");
 }
 
 // Function to render output
@@ -55,7 +56,7 @@ Game *game_init()
     Game *game = malloc(sizeof(Game));
     if (game == NULL)
     {
-        perror("Failed to allocate memory for game");
+        log_error("Failed to allocate memory for game");
         return NULL;
     }
 

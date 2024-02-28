@@ -1,13 +1,12 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <stdbool.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+#include "common/linked_list.h"
 
 typedef struct
 {
     int sockfd;
+    linked_list_t *clients;
 } Server;
 
 Server *server_init(int port);
