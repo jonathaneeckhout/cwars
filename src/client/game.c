@@ -10,6 +10,7 @@
 // Function to handle input
 static void game_input(game_t UNUSED *game)
 {
+    client_loop_once(game->client);
 }
 
 // Function to update game state

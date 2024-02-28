@@ -75,7 +75,14 @@ void client_fsm_run(client_fsm_t *fsm)
             fsm->state = CLIENT_STATE_CONNECT;
             break;
         case CLIENT_STATE_RUN:
-            game_loop_once(fsm->game);
+            if (!fsm->game->client->connected)
+            {
+                fsm->state = CLIENT_STATE_DISCONNECT;
+            }
+            else
+            {
+                game_loop_once(fsm->game);
+            }
             break;
         }
 

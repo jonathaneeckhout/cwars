@@ -53,6 +53,8 @@ void game_stop(Game *game)
 
 Game *game_init()
 {
+    log_info("Initializing game");
+
     Game *game = malloc(sizeof(Game));
     if (game == NULL)
     {
@@ -74,6 +76,13 @@ Game *game_init()
 
 void game_cleanup(Game **game)
 {
+    log_info("Cleaning up game");
+
+    if (game == NULL || *game == NULL)
+    {
+        return;
+    }
+
     server_cleanup(&(*game)->server);
     free(*game);
     *game = NULL;

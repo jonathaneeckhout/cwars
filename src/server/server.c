@@ -16,6 +16,8 @@
 
 Server *server_init(int port)
 {
+    log_info("Initializing server");
+
     Server *server = malloc(sizeof(Server));
     if (server == NULL)
     {
@@ -94,6 +96,8 @@ Server *server_init(int port)
 
 void server_cleanup(Server **server)
 {
+    log_info("Cleaning up server");
+
     if (server == NULL || *server == NULL)
     {
         return;
