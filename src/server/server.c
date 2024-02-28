@@ -108,7 +108,7 @@ void server_cleanup(Server **server)
     printf("Server cleaned up\n");
 }
 
-void server_loop_once(Server *server)
+void server_check_for_incomming_clients(Server *server)
 {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -136,4 +136,46 @@ void server_loop_once(Server *server)
     }
 
     linked_list_append(server->clients, client);
+}
+
+void server_handle_clients(Server *server)
+{
+    link_t *next_link = server->clients->start;
+    while (next_link != NULL)
+    {
+        Client *client = (Client *)link_get_data(next_link);
+        link_t *current_link = next_link;
+        next_link = next_link->next;
+
+        char buffer[256];
+        memset(buffer, 0, sizeof(buffer));
+        int n = read(client->sockfd, buffer, sizeof(buffer));
+        if (n < 0)
+        {
+            if (errno == EWOULDBLOCK || errno == EAGAIN)
+            {
+                continue;
+            }
+            else
+            {
+                printf("Failed to read from client\n");
+                linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
+                continue;
+            }
+        }
+        else if (n == 0)
+        {
+            printf("Client disconnected\n");
+            linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
+            continue;
+        }
+
+        printf("Received message from client: %s\n", buffer);
+    }
+}
+
+void server_loop_once(Server *server)
+{
+    server_check_for_incomming_clients(server);
+    server_handle_clients(server);
 }
