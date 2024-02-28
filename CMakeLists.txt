@@ -56,5 +56,5 @@ add_executable(cwars_server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 add_executable(cwars_client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 
 # Add math library
-target_link_libraries(cwars_server m ssl crypto)
-target_link_libraries(cwars_client m ssl crypto)
+target_link_libraries(cwars_server m)
+target_link_libraries(cwars_client m)

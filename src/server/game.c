@@ -7,11 +7,10 @@
 #include "common/utils.h"
 #include "server/game.h"
 
-
 // Function to handle input
-static void game_input()
+static void game_input(Game *game)
 {
-    // TODO: Implement input handling logic
+    server_loop_once(game->server);
 }
 
 // Function to update game state
@@ -35,7 +34,7 @@ void game_run(Game *game)
 
         long start_time = get_time();
 
-        game_input();
+        game_input(game);
         game_update();
         game_render();
 
@@ -62,7 +61,7 @@ Game *game_init()
 
     game->running = false;
 
-    game->server = server_init(PRIVATE_KEY_FILE, CERTIFICATE_FILE);
+    game->server = server_init(SERVER_PORT);
     if (game->server == NULL)
     {
         free(game);

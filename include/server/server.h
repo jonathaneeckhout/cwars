@@ -8,11 +8,10 @@
 typedef struct
 {
     int sockfd;
-    SSL_CTX *ctx;
-    SSL *ssl;
 } Server;
 
-Server *server_init(const char *key_path, const char *cert_path);
+Server *server_init(int port);
 void server_cleanup(Server **server);
+void server_loop_once(Server *server);
 
 #endif // SERVER_H

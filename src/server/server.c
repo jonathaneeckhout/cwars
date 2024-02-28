@@ -1,137 +1,120 @@
+
 #include <stdio.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "server/server.h"
-#include <openssl/err.h>
 
-#define MAX_BUFFER_SIZE 1024
-
-Server *server_init(const char *key_path, const char *cert_path)
+Server *server_init(int port)
 {
     Server *server = malloc(sizeof(Server));
     if (server == NULL)
     {
-        perror("Failed to allocate memory for server");
+        printf("Failed to allocate memory for server\n");
         return NULL;
     }
 
-    // Create a UDP socket
-    server->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    server->sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (server->sockfd < 0)
     {
-        perror("Failed to create socket");
-        free(server); // Free the allocated memory
+        printf("Failed to create socket\n");
+        free(server);
         return NULL;
     }
 
-    // Set up server address
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_port = htons(12345);
+    int reuse = 1;
+    if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+    {
+        printf("Failed to set socket option for address reuse\n");
+        close(server->sockfd);
+        free(server);
+        return NULL;
+    }
 
-    // Bind the socket to the server address
+    // Set socket to non-blocking mode
+    int flags = fcntl(server->sockfd, F_GETFL, 0);
+    if (flags < 0)
+    {
+        printf("Failed to get socket flags\n");
+        close(server->sockfd);
+        free(server);
+        return NULL;
+    }
+    flags |= O_NONBLOCK;
+    if (fcntl(server->sockfd, F_SETFL, flags) < 0)
+    {
+        printf("Failed to set socket flags\n");
+        close(server->sockfd);
+        free(server);
+        return NULL;
+    }
+
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(port);
+
     if (bind(server->sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        perror("Failed to bind socket");
+        printf("Failed to bind socket\n");
         close(server->sockfd);
-        free(server); // Free the allocated memory
+        free(server);
         return NULL;
     }
 
-    // Set up DTLS context
-    server->ctx = SSL_CTX_new(DTLS_server_method());
-    if (server->ctx == NULL)
+    if (listen(server->sockfd, 5) < 0)
     {
-        perror("Failed to create DTLS context");
+        printf("Failed to listen on socket\n");
         close(server->sockfd);
-        free(server); // Free the allocated memory
+        free(server);
         return NULL;
     }
 
-    // Load server certificate and private key
-    if (SSL_CTX_use_certificate_file(server->ctx, cert_path, SSL_FILETYPE_PEM) != 1)
-    {
-        ERR_print_errors_fp(stderr);
-        perror("Failed to load server certificate");
-        SSL_CTX_free(server->ctx);
-        close(server->sockfd);
-        free(server); // Free the allocated memory
-        return NULL;
-    }
-    if (SSL_CTX_use_PrivateKey_file(server->ctx, key_path, SSL_FILETYPE_PEM) != 1)
-    {
-        ERR_print_errors_fp(stderr);
-        perror("Failed to load server private key");
-        SSL_CTX_free(server->ctx);
-        close(server->sockfd);
-        free(server); // Free the allocated memory
-        return NULL;
-    }
-
-    // Set up DTLS session
-    server->ssl = SSL_new(server->ctx);
-    if (server->ssl == NULL)
-    {
-        perror("Failed to create DTLS session");
-        SSL_CTX_free(server->ctx);
-        close(server->sockfd);
-        free(server); // Free the allocated memory
-        return NULL;
-    }
-    SSL_set_fd(server->ssl, server->sockfd);
+    printf("Server started on port %d\n", port);
 
     return server;
 }
 
 void server_cleanup(Server **server)
 {
-    printf("Cleaning up server\n");
+    if (server == NULL || *server == NULL)
+    {
+        return;
+    }
 
-    // Clean up
-    SSL_shutdown((*server)->ssl);
-    SSL_free((*server)->ssl);
-    SSL_CTX_free((*server)->ctx);
     close((*server)->sockfd);
     free(*server);
     *server = NULL;
+
+    printf("Server cleaned up\n");
 }
 
-// void run() {
-//     // Initialize
-//     init();
+void server_loop_once(Server *server)
+{
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    int client_sockfd = accept(server->sockfd, (struct sockaddr *)&client_addr, &client_len);
+    if (client_sockfd < 0)
+    {
+        if (errno == EWOULDBLOCK || errno == EAGAIN)
+        {
+            return;
+        }
+        else
+        {
+            printf("Failed to accept connection\n");
+            return;
+        }
+        return;
+    }
 
-//     // Start listening for incoming connections
-//     while (1) {
-//         struct sockaddr_in client_addr;
-//         socklen_t client_addr_len = sizeof(client_addr);
-//         char buffer[MAX_BUFFER_SIZE];
+    printf("Accepted connection\n");
 
-//         // Receive data from client
-//         ssize_t recv_len = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&client_addr, &client_addr_len);
-//         if (recv_len < 0) {
-//             perror("Failed to receive data");
-//             break;
-//         }
-
-//         // Process received data
-//         // ...
-
-//         // Send response to client
-//         ssize_t send_len = sendto(sockfd, buffer, recv_len, 0, (struct sockaddr*)&client_addr, client_addr_len);
-//         if (send_len < 0) {
-//             perror("Failed to send data");
-//             break;
-//         }
-//     }
-
-//     // Cleanup
-//     cleanup();
-// }
+    close(client_sockfd);
+}
