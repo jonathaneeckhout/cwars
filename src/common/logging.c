@@ -11,19 +11,3 @@ void logging_cleanup()
 {
     closelog();
 }
-
-void log_message(int priority, const char *format, ...)
-{
-
-    va_list args;
-    va_start(args, format);
-
-    // Send the log message to syslog
-    vsyslog(priority, format, args);
-
-    // Also print the log message to the console
-    vprintf(format, args);
-    printf("\n");
-
-    va_end(args);
-}

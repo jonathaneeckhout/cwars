@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "common/logging.h"
-#include "server/config.h"
+#include "common/config.h"
 #include "common/utils.h"
 #include "server/game.h"
 

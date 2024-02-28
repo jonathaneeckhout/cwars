@@ -172,6 +172,7 @@ void server_handle_clients(Server *server)
 
         log_info("Received message from client: %s\n", buffer);
     }
+    printf("Handled clients\n");
 }
 
 void server_loop_once(Server *server)

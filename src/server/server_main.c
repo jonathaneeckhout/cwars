@@ -3,8 +3,8 @@
 #include <signal.h>
 
 #include "common/logging.h"
-#include "server/game.h"
 #include "common/utils.h"
+#include "server/game.h"
 
 Game *game = NULL;
 
