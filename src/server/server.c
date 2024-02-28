@@ -127,6 +127,24 @@ void server_check_for_incomming_clients(Server *server)
         return;
     }
 
+    log_info("New client connected");
+
+    // Set client socket to non-blocking
+    int flags = fcntl(client_sockfd, F_GETFL, 0);
+    if (flags < 0)
+    {
+        log_error("Failed to get socket flags");
+        close(client_sockfd);
+        return;
+    }
+    flags |= O_NONBLOCK;
+    if (fcntl(client_sockfd, F_SETFL, flags) < 0)
+    {
+        log_error("Failed to set socket flags to non-blocking");
+        close(client_sockfd);
+        return;
+    }
+
     Client *client = client_init(client_sockfd, client_addr);
     if (client == NULL)
     {
@@ -172,7 +190,6 @@ void server_handle_clients(Server *server)
 
         log_info("Received message from client: %s\n", buffer);
     }
-    printf("Handled clients\n");
 }
 
 void server_loop_once(Server *server)
