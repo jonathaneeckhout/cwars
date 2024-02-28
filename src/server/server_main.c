@@ -20,7 +20,7 @@ int main()
 {
 
     // Initialize the logging system
-    logging_init("server", LOG_DEBUG);
+    logging_init("cwars server", LOG_DEBUG);
 
     log_info("Starting the server");
 

@@ -3,7 +3,7 @@
 
 int main()
 {
-    logging_init("client", LOG_DEBUG);
+    logging_init("cwars client", LOG_DEBUG);
 
     log_info("Starting the client");
 

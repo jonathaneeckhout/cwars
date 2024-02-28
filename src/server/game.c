@@ -17,7 +17,7 @@ static void game_input(Game *game)
 // Function to update game state
 static void game_update()
 {
-    log_info("Updating game state");
+    // log_info("Updating game state");
 }
 
 // Function to render output

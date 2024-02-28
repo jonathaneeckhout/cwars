@@ -121,7 +121,7 @@ void server_check_for_incomming_clients(Server *server)
         }
         else
         {
-            printf("Failed to accept connection\n");
+            log_warning("Failed to accept connection");
             return;
         }
         return;
@@ -130,7 +130,7 @@ void server_check_for_incomming_clients(Server *server)
     Client *client = client_init(client_sockfd, client_addr);
     if (client == NULL)
     {
-        printf("Failed to initialize client\n");
+        log_error("Failed to initialize client");
         close(client_sockfd);
         return;
     }
@@ -158,19 +158,19 @@ void server_handle_clients(Server *server)
             }
             else
             {
-                printf("Failed to read from client\n");
+                log_warning("Failed to read from client");
                 linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
                 continue;
             }
         }
         else if (n == 0)
         {
-            printf("Client disconnected\n");
+            log_info("Client disconnected");
             linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
             continue;
         }
 
-        printf("Received message from client: %s\n", buffer);
+        log_info("Received message from client: %s\n", buffer);
     }
 }
 
