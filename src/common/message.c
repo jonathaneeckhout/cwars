@@ -42,15 +42,17 @@ void message_cleanup(message_t **message)
 void message_serialize(message_t *message, char *buffer, uint32_t *length)
 {
     uint32_t offset = 0;
+    uint32_t protocol_id_network = 0;
+    uint32_t length_network = 0;
 
-    uint32_t protocol_id_network = htonl(message->protocol_id);
+    protocol_id_network = htonl(message->protocol_id);
     memcpy(buffer + offset, &protocol_id_network, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
     memcpy(buffer + offset, &message->type, sizeof(uint8_t));
     offset += sizeof(uint8_t);
 
-    uint32_t length_network = htonl(message->length);
+    length_network = htonl(message->length);
     memcpy(buffer + offset, &length_network, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
@@ -205,9 +207,11 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
 
     for (unsigned int i = 0; i < max_messages_read; i++)
     {
+        ssize_t bytes_received = 0;
+
         memset(buffer, 0, sizeof(buffer));
 
-        ssize_t bytes_received = recv(sockfd, buffer, sizeof(buffer), MSG_DONTWAIT);
+        bytes_received = recv(sockfd, buffer, sizeof(buffer), MSG_DONTWAIT);
         if (bytes_received < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)

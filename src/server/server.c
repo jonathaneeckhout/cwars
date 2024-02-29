@@ -116,6 +116,9 @@ void server_check_for_incomming_clients(Server *server)
 {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
+    int flags = 0;
+    client_t *client = NULL;
+
     int client_sockfd = accept(server->sockfd, (struct sockaddr *)&client_addr, &client_len);
     if (client_sockfd < 0)
     {
@@ -134,7 +137,7 @@ void server_check_for_incomming_clients(Server *server)
     log_info("New client connected");
 
     // Set client socket to non-blocking
-    int flags = fcntl(client_sockfd, F_GETFL, 0);
+    flags = fcntl(client_sockfd, F_GETFL, 0);
     if (flags < 0)
     {
         log_error("Failed to get socket flags");
@@ -149,7 +152,7 @@ void server_check_for_incomming_clients(Server *server)
         return;
     }
 
-    client_t *client = client_init(client_sockfd, client_addr);
+    client = client_init(client_sockfd, client_addr);
     if (client == NULL)
     {
         log_error("Failed to initialize client");
@@ -177,31 +180,6 @@ void server_handle_clients(Server *server)
             linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
             continue;
         }
-
-        // char buffer[256];
-        // memset(buffer, 0, sizeof(buffer));
-        // int n = read(client->sockfd, buffer, sizeof(buffer));
-        // if (n < 0)
-        // {
-        //     if (errno == EWOULDBLOCK || errno == EAGAIN)
-        //     {
-        //         continue;
-        //     }
-        //     else
-        //     {
-        //         log_warning("Failed to read from client");
-        //         linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
-        //         continue;
-        //     }
-        // }
-        // else if (n == 0)
-        // {
-        //     log_info("Client disconnected");
-        //     linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
-        //     continue;
-        // }
-        // printf("Received message from client\n");
-        // log_info("Received message from client: %s\n", buffer);
     }
 }
 
