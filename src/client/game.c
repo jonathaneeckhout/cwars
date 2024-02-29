@@ -8,15 +8,15 @@
 #include "client/game.h"
 
 // Function to handle input
-static void game_input(game_t UNUSED *game)
+static void game_input(game_t *game)
 {
     client_loop_once(game->client);
 }
 
 // Function to update game state
-static void game_update()
+static void game_update(game_t *game, long delta_time)
 {
-    // log_info("Updating game state");
+    ctimer_update(game->ping_timer, delta_time);
 }
 
 // Function to render output
@@ -25,10 +25,10 @@ static void game_render()
     // TODO: Implement rendering logic
 }
 
-void game_loop_once(game_t *game)
+void game_loop_once(game_t *game, long delta_time)
 {
     game_input(game);
-    game_update();
+    game_update(game, delta_time);
     game_render();
 }
 
@@ -50,6 +50,14 @@ game_t *game_init()
         return NULL;
     }
 
+    game->ping_timer = ctimer_init(CLIENT_MS_PER_PING, true, game->client, (void (*)(void *)) & client_send_ping);
+    if (game->ping_timer == NULL)
+    {
+        client_cleanup(&game->client);
+        free(game);
+        return NULL;
+    }
+
     return game;
 }
 
@@ -64,6 +72,9 @@ void game_cleanup(game_t **game)
     }
 
     client_cleanup(&(*game)->client);
+
+    ctimer_cleanup(&(*game)->ping_timer);
+
     free(*game);
     *game = NULL;
 }

@@ -50,10 +50,14 @@ void client_fsm_run(client_fsm_t *fsm)
 {
     fsm->running = true;
 
+    long start_time = get_time();
+
     while (fsm->running)
     {
 
-        long start_time = get_time();
+        long delta_time = get_time() - start_time;
+        start_time = get_time();
+
         switch (fsm->state)
         {
         case CLIENT_STATE_INIT:
@@ -81,7 +85,7 @@ void client_fsm_run(client_fsm_t *fsm)
             }
             else
             {
-                game_loop_once(fsm->game);
+                game_loop_once(fsm->game, delta_time);
             }
             break;
         }

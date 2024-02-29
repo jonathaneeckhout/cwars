@@ -72,6 +72,26 @@ void linked_list_clear(linked_list_t *list, void (*cleanup_function)(void **))
     list->end = NULL;
 }
 
+bool linked_list_push_front(linked_list_t *list, void *data)
+{
+    link_t *link = link_init(data);
+
+    if (list->size == 0)
+    {
+        list->start = link;
+        list->end = link;
+    }
+    else
+    {
+        link->next = list->start;
+        list->start->previous = link;
+        list->start = link;
+    }
+    list->size++;
+
+    return true;
+}
+
 bool linked_list_append(linked_list_t *list, void *data)
 {
     link_t *link = link_init(data);
@@ -127,4 +147,26 @@ bool linked_list_remove(linked_list_t *list, link_t **link, void (*cleanup_funct
 void *link_get_data(link_t *link)
 {
     return link->data;
+}
+
+bool linked_list_is_empty(linked_list_t *list)
+{
+    return list->size == 0;
+}
+
+void *linked_list_pop(linked_list_t *list)
+{
+    if (list->size == 0)
+    {
+        return NULL;
+    }
+
+    link_t *link = list->start;
+    void *data = link->data;
+    list->start = link->next;
+    list->size--;
+
+    link_cleanup(&link, NULL);
+
+    return data;
 }

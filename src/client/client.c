@@ -6,9 +6,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 
 #include "common/logging.h"
 #include "common/utils.h"
+#include "common/message.h"
+
 #include "client/client.h"
 
 client_t *client_init()
@@ -26,7 +29,46 @@ client_t *client_init()
 
     client->connected = false;
 
+    client->out_message_queue = linked_list_init();
+    if (client->out_message_queue == NULL)
+    {
+        log_error("Failed to initialize out message queue");
+        free(client);
+        return NULL;
+    }
+
+    client->in_message_queue = linked_list_init();
+    if (client->in_message_queue == NULL)
+    {
+        log_error("Failed to initialize in message queue");
+        linked_list_cleanup(&client->out_message_queue, (void (*)(void **)) & message_cleanup);
+        free(client);
+        return NULL;
+    }
+
     return client;
+}
+
+void client_cleanup(client_t **client)
+{
+    log_info("Cleaning up client");
+
+    if (*client == NULL)
+    {
+        return;
+    }
+
+    if ((*client)->sockfd > 0)
+    {
+        close((*client)->sockfd);
+    }
+
+    linked_list_cleanup(&(*client)->out_message_queue, (void (*)(void **)) & message_cleanup);
+
+    linked_list_cleanup(&(*client)->in_message_queue, (void (*)(void **)) & message_cleanup);
+
+    free(*client);
+    *client = NULL;
 }
 
 bool client_connect(client_t *client, const char *address, int port)
@@ -77,48 +119,63 @@ bool client_connect(client_t *client, const char *address, int port)
     return true;
 }
 
-void client_cleanup(client_t **client)
-{
-    log_info("Cleaning up client");
-
-    if (*client == NULL)
-    {
-        return;
-    }
-
-    if ((*client)->sockfd > 0)
-    {
-        close((*client)->sockfd);
-    }
-
-    free(*client);
-    *client = NULL;
-}
-
 void client_loop_once(client_t *client)
 {
-    char buffer[1024];
-    int bytes_received = recv(client->sockfd, buffer, sizeof(buffer), MSG_PEEK);
-    if (bytes_received == 0)
-    {
-        log_info("Disconnected from server");
+    // char buffer[1024];
+    // int bytes_received = recv(client->sockfd, buffer, sizeof(buffer), MSG_PEEK);
+    // if (bytes_received == 0)
+    // {
+    //     log_info("Disconnected from server");
 
-        client->connected = false;
+    //     client->connected = false;
 
-        return;
-    }
-    else if (bytes_received < 0)
+    //     return;
+    // }
+    // else if (bytes_received < 0)
+    // {
+    //     if (errno == EWOULDBLOCK || errno == EAGAIN)
+    //     {
+    //         return;
+    //     }
+
+    //     log_error("Failed to receive data from server");
+    // }
+    // else
+    // {
+    //     // Process received data
+    //     // ...
+    // }
+
+    message_send_non_blocking(client->sockfd, client->out_message_queue);
+}
+
+static void client_add_message_to_out_queue(client_t *client, message_t *message)
+{
+    log_info("Adding message to out queue");
+
+    if (client->out_message_queue == NULL)
     {
-        if (errno == EWOULDBLOCK || errno == EAGAIN)
+        client->out_message_queue = linked_list_init();
+        if (client->out_message_queue == NULL)
         {
+            log_error("Failed to initialize out message queue");
             return;
         }
+    }
 
-        log_error("Failed to receive data from server");
-    }
-    else
+    linked_list_append(client->out_message_queue, message);
+}
+
+void client_send_ping(client_t UNUSED *client)
+{
+    log_info("Sending ping to server");
+
+    message_t *message = message_init_ping();
+    if (message == NULL)
     {
-        // Process received data
-        // ...
+        log_error("Failed to create message");
+        return;
     }
+
+    client_add_message_to_out_queue(client, message);
 }

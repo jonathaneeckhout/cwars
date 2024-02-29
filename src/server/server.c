@@ -191,8 +191,8 @@ void server_handle_clients(Server *server)
             linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
             continue;
         }
-
-        log_info("Received message from client: %s\n", buffer);
+        printf("Received message from client\n");
+        // log_info("Received message from client: %s\n", buffer);
     }
 }
 
