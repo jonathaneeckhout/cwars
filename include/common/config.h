@@ -3,6 +3,7 @@
 
 #define SERVER_ADDRESS "127.0.0.1"
 #define SERVER_PORT 9876
+#define SERVER_MAX_MESSAGES_READ 128
 
 #define CERTIFICATE_FILE "../crt/cert.pem"
 #define PRIVATE_KEY_FILE "../crt/private_key.pem"
@@ -13,6 +14,7 @@
 #define CLIENT_FPS 10
 #define CLIENT_MICROSECONDS_PER_FRAME 1000000 / FPS
 #define CLIENT_RECONNECT_TIME 3
+#define CLIENT_MAX_MESSAGES_READ 64
 
 #define CLIENT_MS_PER_PING 1000
 

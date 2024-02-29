@@ -10,6 +10,7 @@
 
 #include "common/logging.h"
 #include "common/utils.h"
+#include "common/config.h"
 #include "common/message.h"
 
 #include "client/client.h"
@@ -121,49 +122,19 @@ bool client_connect(client_t *client, const char *address, int port)
 
 void client_loop_once(client_t *client)
 {
-    // char buffer[1024];
-    // int bytes_received = recv(client->sockfd, buffer, sizeof(buffer), MSG_PEEK);
-    // if (bytes_received == 0)
-    // {
-    //     log_info("Disconnected from server");
-
-    //     client->connected = false;
-
-    //     return;
-    // }
-    // else if (bytes_received < 0)
-    // {
-    //     if (errno == EWOULDBLOCK || errno == EAGAIN)
-    //     {
-    //         return;
-    //     }
-
-    //     log_error("Failed to receive data from server");
-    // }
-    // else
-    // {
-    //     // Process received data
-    //     // ...
-    // }
-
-    message_send_non_blocking(client->sockfd, client->out_message_queue);
-}
-
-static void client_add_message_to_out_queue(client_t *client, message_t *message)
-{
-    log_info("Adding message to out queue");
-
-    if (client->out_message_queue == NULL)
+    if (!client->connected)
     {
-        client->out_message_queue = linked_list_init();
-        if (client->out_message_queue == NULL)
-        {
-            log_error("Failed to initialize out message queue");
-            return;
-        }
+        return;
     }
 
-    linked_list_append(client->out_message_queue, message);
+    message_read_non_blocking(client->sockfd, client->in_message_queue, CLIENT_MAX_MESSAGES_READ, &client->connected);
+
+    if (!client->connected)
+    {
+        return;
+    }
+
+    message_send_non_blocking(client->sockfd, client->out_message_queue);
 }
 
 void client_send_ping(client_t UNUSED *client)
@@ -177,5 +148,5 @@ void client_send_ping(client_t UNUSED *client)
         return;
     }
 
-    client_add_message_to_out_queue(client, message);
+    linked_list_append(client->out_message_queue, message);
 }

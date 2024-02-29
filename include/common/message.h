@@ -25,7 +25,7 @@ void message_cleanup(message_t **message);
 void message_serialize(message_t *message, char *buffer, uint32_t *length);
 message_t *message_deserialize(char *buffer, uint32_t length);
 
-void message_read_non_blocking(int sockfd, linked_list_t *message_queue);
+void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigned int max_messages_read, bool *connected);
 void message_send_non_blocking(int sockfd, linked_list_t *message_queue);
 
 message_t *message_init_ping();

@@ -149,7 +149,7 @@ void server_check_for_incomming_clients(Server *server)
         return;
     }
 
-    Client *client = client_init(client_sockfd, client_addr);
+    client_t *client = client_init(client_sockfd, client_addr);
     if (client == NULL)
     {
         log_error("Failed to initialize client");
@@ -165,33 +165,42 @@ void server_handle_clients(Server *server)
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
     {
-        Client *client = (Client *)link_get_data(next_link);
+        client_t *client = (client_t *)link_get_data(next_link);
         link_t *current_link = next_link;
         next_link = next_link->next;
 
-        char buffer[256];
-        memset(buffer, 0, sizeof(buffer));
-        int n = read(client->sockfd, buffer, sizeof(buffer));
-        if (n < 0)
-        {
-            if (errno == EWOULDBLOCK || errno == EAGAIN)
-            {
-                continue;
-            }
-            else
-            {
-                log_warning("Failed to read from client");
-                linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
-                continue;
-            }
-        }
-        else if (n == 0)
+        client_loop_once(client);
+
+        if (!client->connected)
         {
             log_info("Client disconnected");
             linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
             continue;
         }
-        printf("Received message from client\n");
+
+        // char buffer[256];
+        // memset(buffer, 0, sizeof(buffer));
+        // int n = read(client->sockfd, buffer, sizeof(buffer));
+        // if (n < 0)
+        // {
+        //     if (errno == EWOULDBLOCK || errno == EAGAIN)
+        //     {
+        //         continue;
+        //     }
+        //     else
+        //     {
+        //         log_warning("Failed to read from client");
+        //         linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
+        //         continue;
+        //     }
+        // }
+        // else if (n == 0)
+        // {
+        //     log_info("Client disconnected");
+        //     linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
+        //     continue;
+        // }
+        // printf("Received message from client\n");
         // log_info("Received message from client: %s\n", buffer);
     }
 }

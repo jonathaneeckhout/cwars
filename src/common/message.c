@@ -25,7 +25,7 @@ message_t *message_init()
 
 void message_cleanup(message_t **message)
 {
-    if (*message == NULL)
+    if (message == NULL || *message == NULL)
     {
         return;
     }
@@ -66,6 +66,9 @@ void message_serialize(message_t *message, char *buffer, uint32_t *length)
 message_t *message_deserialize(char *buffer, uint32_t length)
 {
     uint32_t offset = 0;
+    message_t *message = NULL;
+    uint32_t protocol_id_network = 0;
+    uint32_t length_network = 0;
 
     if (length < MESSAGE_HEADER_SIZE)
     {
@@ -73,13 +76,12 @@ message_t *message_deserialize(char *buffer, uint32_t length)
         return NULL;
     }
 
-    message_t *message = malloc(sizeof(message_t));
+    message = message_init();
     if (message == NULL)
     {
         return NULL;
     }
 
-    uint32_t protocol_id_network;
     memcpy(&protocol_id_network, buffer + offset, sizeof(uint32_t));
     message->protocol_id = ntohl(protocol_id_network);
     offset += sizeof(uint32_t);
@@ -94,7 +96,6 @@ message_t *message_deserialize(char *buffer, uint32_t length)
     memcpy(&message->type, buffer + offset, sizeof(uint8_t));
     offset += sizeof(uint8_t);
 
-    uint32_t length_network;
     memcpy(&length_network, buffer + offset, sizeof(uint32_t));
     message->length = ntohl(length_network);
     offset += sizeof(uint32_t);
@@ -157,17 +158,21 @@ void message_send_non_blocking(int sockfd, linked_list_t *message_queue)
 
     while (!linked_list_is_empty(message_queue))
     {
+        char buffer[MESSAGE_MAX_MTU];
+        uint32_t length = 0;
+        ssize_t bytes_sent = 0;
+
         message_t *message = linked_list_pop(message_queue);
         if (message == NULL)
         {
             return;
         }
 
-        char buffer[MESSAGE_MAX_MTU];
-        uint32_t length;
+        memset(buffer, 0, sizeof(buffer));
+
         message_serialize(message, buffer, &length);
 
-        ssize_t bytes_sent = send(sockfd, buffer, length, MSG_DONTWAIT);
+        bytes_sent = send(sockfd, buffer, length, MSG_DONTWAIT);
         if (bytes_sent < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -190,35 +195,54 @@ void message_send_non_blocking(int sockfd, linked_list_t *message_queue)
             message_cleanup(&message);
         }
     }
+}
 
-    // message_t *message = linked_list_pop(message_queue);
-    // if (message == NULL)
-    // {
-    //     return;
-    // }
+void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigned int max_messages_read, bool *connected)
+{
 
-    // char buffer[MESSAGE_MAX_MTU];
-    // uint32_t length;
-    // message_serialize(message, buffer, &length);
+    char buffer[MESSAGE_MAX_MTU];
+    message_t *message = NULL;
 
-    // ssize_t bytes_sent = send(sockfd, buffer, length, MSG_DONTWAIT);
-    // if (bytes_sent < 0)
-    // {
-    //     if (errno == EAGAIN || errno == EWOULDBLOCK)
-    //     {
-    //         // The socket is non-blocking and the send would block,
-    //         // so re-queue the message and try again later.
-    //         linked_list_push_front(message_queue, message);
-    //     }
-    //     else
-    //     {
-    //         // An actual error occurred
-    //         log_error("Failed to send message");
-    //         message_cleanup(&message);
-    //     }
-    // }
-    // else
-    // {
-    //     message_cleanup(&message);
-    // }
+    for (unsigned int i = 0; i < max_messages_read; i++)
+    {
+        memset(buffer, 0, sizeof(buffer));
+
+        ssize_t bytes_received = recv(sockfd, buffer, sizeof(buffer), MSG_DONTWAIT);
+        if (bytes_received < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                // No data available
+                return;
+            }
+            else
+            {
+                log_error("Failed to receive message");
+                return;
+            }
+        }
+        else if (bytes_received == 0)
+        {
+            log_info("Peer disconnected");
+            if (connected != NULL)
+            {
+                *connected = false;
+            }
+            return;
+        }
+
+        if (message_queue == NULL)
+        {
+            continue;
+        }
+
+        message = message_deserialize(buffer, bytes_received);
+        if (message == NULL)
+        {
+            log_error("Failed to deserialize message");
+            continue;
+        }
+
+        linked_list_append(message_queue, message);
+    }
 }
