@@ -12,7 +12,7 @@ client_t *client_init(int sockfd, struct sockaddr_in addr)
 {
     log_info("Initializing client");
 
-    client_t *client = malloc(sizeof(client_t));
+    client_t *client = calloc(1, sizeof(client_t));
     if (client == NULL)
     {
         log_error("Failed to allocate memory for client");

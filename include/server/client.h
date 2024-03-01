@@ -8,7 +8,6 @@
 
 typedef struct
 {
-    int id;
     int sockfd;
     struct sockaddr_in addr;
     bool connected;

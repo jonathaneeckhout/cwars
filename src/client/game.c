@@ -5,7 +5,9 @@
 #include "common/logging.h"
 #include "common/config.h"
 #include "common/utils.h"
+
 #include "client/game.h"
+#include "client/message_handler.h"
 
 static void game_input(game_t *game)
 {
@@ -15,6 +17,7 @@ static void game_input(game_t *game)
 static void game_update(game_t *game, long delta_time)
 {
     ctimer_update(game->ping_timer, delta_time);
+    message_handler_update(game, delta_time);
 }
 
 static void game_output(game_t *game)
@@ -33,7 +36,7 @@ game_t *game_init()
 {
     log_info("Initializing game");
 
-    game_t *game = malloc(sizeof(game_t));
+    game_t *game = calloc(1, sizeof(game_t));
     if (game == NULL)
     {
         log_error("Failed to allocate memory for game");

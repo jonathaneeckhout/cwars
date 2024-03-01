@@ -10,7 +10,7 @@
 #define MESSAGE_HEADER_SIZE (sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint32_t))
 
 #define MESSAGE_TYPE_PING 0x01
-#define MESSAGE_TYPE_PING_RESPONSE 0x02
+#define MESSAGE_TYPE_PONG 0x02
 
 typedef struct
 {
@@ -29,6 +29,6 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
 void message_send_non_blocking(int sockfd, linked_list_t *message_queue);
 
 message_t *message_init_ping();
-message_t *message_init_ping_response();
+message_t *message_init_pong();
 
 #endif // MESSAGE_H

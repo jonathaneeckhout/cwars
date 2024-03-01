@@ -9,7 +9,7 @@
 
 message_t *message_init()
 {
-    message_t *message = malloc(sizeof(message_t));
+    message_t *message = calloc(1, sizeof(message_t));
     if (message == NULL)
     {
         return NULL;
@@ -111,7 +111,7 @@ message_t *message_deserialize(char *buffer, uint32_t length)
             return NULL;
         }
 
-        message->data = malloc(message->length);
+        message->data = calloc(1, message->length);
         if (message->data == NULL)
         {
             free(message);
@@ -138,7 +138,7 @@ message_t *message_init_ping()
     return message;
 }
 
-message_t *message_init_ping_response()
+message_t *message_init_pong()
 {
     message_t *message = message_init();
     if (message == NULL)
@@ -146,7 +146,7 @@ message_t *message_init_ping_response()
         return NULL;
     }
 
-    message->type = MESSAGE_TYPE_PING_RESPONSE;
+    message->type = MESSAGE_TYPE_PONG;
 
     return message;
 }

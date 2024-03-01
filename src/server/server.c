@@ -18,7 +18,7 @@ Server *server_init(int port)
 {
     log_info("Initializing server");
 
-    Server *server = malloc(sizeof(Server));
+    Server *server = calloc(1, sizeof(Server));
     if (server == NULL)
     {
         log_error("Failed to allocate memory for server");

@@ -11,7 +11,7 @@ client_fsm_t *client_fsm_init()
 {
     log_info("Initializing client fsm");
 
-    client_fsm_t *client_fsm = malloc(sizeof(client_fsm_t));
+    client_fsm_t *client_fsm = calloc(1, sizeof(client_fsm_t));
     if (client_fsm == NULL)
     {
         log_error("Failed to allocate memory for client_fsm");
