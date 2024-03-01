@@ -17,7 +17,7 @@ static void game_input(game_t *game)
 
 static void game_update(game_t *game, int64_t delta_time)
 {
-    ctimer_update(game->ping_timer, delta_time);
+    ctimer_update(game->latency_timer, delta_time);
     message_handler_update(game, delta_time);
 }
 
@@ -51,8 +51,8 @@ game_t *game_init()
         return NULL;
     }
 
-    game->ping_timer = ctimer_init(CLIENT_MS_PER_PING, true, game->client, (void (*)(void *)) & client_send_ping);
-    if (game->ping_timer == NULL)
+    game->latency_timer = ctimer_init(CLIENT_MS_PER_CLOCK_SYNC, true, game->client, (void (*)(void *)) & client_send_get_latency_message);
+    if (game->latency_timer == NULL)
     {
         client_cleanup(&game->client);
         free(game);
@@ -74,7 +74,7 @@ void game_cleanup(game_t **game)
 
     client_cleanup(&(*game)->client);
 
-    ctimer_cleanup(&(*game)->ping_timer);
+    ctimer_cleanup(&(*game)->latency_timer);
 
     free(*game);
     *game = NULL;

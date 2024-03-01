@@ -26,5 +26,6 @@ void client_handle_output(client_t *client);
 
 void client_send_ping(client_t *client);
 void client_send_get_server_time_message(client_t *client);
+void client_send_get_latency_message(client_t *client);
 
 #endif // CLIENT_H

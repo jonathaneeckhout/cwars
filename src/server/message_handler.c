@@ -17,18 +17,7 @@ static void message_handler_parse_message(client_t *client, message_t *message)
     case MESSAGE_TYPE_PING:
         log_info("Received ping from %d", client->sockfd);
 
-        message_t *pong_message = message_init_pong();
-        if (pong_message == NULL)
-        {
-            log_error("Failed to initialize pong message");
-            return;
-        }
-
-        linked_list_append(client->out_message_queue, pong_message);
-
-        break;
-    case MESSAGE_TYPE_PONG:
-        log_info("Received pong from %d", client->sockfd);
+        server_send_pong_message(client);
 
         break;
     case MESSAGE_TYPE_GET_SERVER_TIME:
@@ -44,6 +33,22 @@ static void message_handler_parse_message(client_t *client, message_t *message)
         server_send_return_server_time_message(client, response->client_time);
 
         message_get_server_time_response_cleanup(&response);
+
+        break;
+
+    case MESSAGE_TYPE_GET_LATENCY:
+        log_info("Received get latency from %d", client->sockfd);
+
+        message_get_latency_response_t *latency_response = message_get_latency_response_deserialize(message);
+        if (latency_response == NULL)
+        {
+            log_error("Failed to deserialize get latency response");
+            return;
+        }
+
+        server_send_return_latency_message(client, latency_response->client_time);
+
+        message_get_latency_response_cleanup(&latency_response);
 
         break;
     default:

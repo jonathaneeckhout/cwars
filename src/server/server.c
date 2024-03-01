@@ -209,12 +209,36 @@ void server_handle_output(server_t *server)
     server_handle_clients_output(server);
 }
 
+void server_send_pong_message(client_t *client)
+{
+    message_t *pong_message = message_init_pong();
+    if (pong_message == NULL)
+    {
+        log_error("Failed to initialize pong message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, pong_message);
+}
+
 void server_send_return_server_time_message(client_t *client, int64_t client_time)
 {
     message_t *message = message_init_return_server_time(get_time(), client_time);
     if (message == NULL)
     {
         log_error("Failed to create return server time message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
+}
+
+void server_send_return_latency_message(client_t *client, int64_t client_time)
+{
+    message_t *message = message_init_return_latency(client_time);
+    if (message == NULL)
+    {
+        log_error("Failed to create return latency message");
         return;
     }
 

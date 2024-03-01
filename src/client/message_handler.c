@@ -13,19 +13,6 @@ static void message_handler_parse_message(game_t *game, message_t *message)
 {
     switch (message->type)
     {
-    case MESSAGE_TYPE_PING:
-        log_info("Received ping from %d", game->client->sockfd);
-
-        message_t *pong_message = message_init_pong();
-        if (pong_message == NULL)
-        {
-            log_error("Failed to initialize pong message");
-            return;
-        }
-
-        linked_list_append(game->client->out_message_queue, pong_message);
-
-        break;
     case MESSAGE_TYPE_PONG:
         log_info("Received pong from %d", game->client->sockfd);
         break;
