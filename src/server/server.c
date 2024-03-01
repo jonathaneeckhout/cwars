@@ -11,14 +11,17 @@
 #include <errno.h>
 
 #include "common/logging.h"
+#include "common/utils.h"
+#include "common/message.h"
+
 #include "server/server.h"
 #include "server/client.h"
 
-Server *server_init(int port)
+server_t *server_init(int port)
 {
     log_info("Initializing server");
 
-    Server *server = calloc(1, sizeof(Server));
+    server_t *server = calloc(1, sizeof(server_t));
     if (server == NULL)
     {
         log_error("Failed to allocate memory for server");
@@ -94,7 +97,7 @@ Server *server_init(int port)
     return server;
 }
 
-void server_cleanup(Server **server)
+void server_cleanup(server_t **server)
 {
     log_info("Cleaning up server");
 
@@ -112,7 +115,7 @@ void server_cleanup(Server **server)
     printf("Server cleaned up\n");
 }
 
-static void server_check_for_incomming_clients(Server *server)
+static void server_check_for_incomming_clients(server_t *server)
 {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -163,7 +166,7 @@ static void server_check_for_incomming_clients(Server *server)
     linked_list_append(server->clients, client);
 }
 
-static void server_handle_clients_input(Server *server)
+static void server_handle_clients_input(server_t *server)
 {
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
@@ -183,7 +186,7 @@ static void server_handle_clients_input(Server *server)
     }
 }
 
-static void server_handle_clients_output(Server *server)
+static void server_handle_clients_output(server_t *server)
 {
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
@@ -195,13 +198,25 @@ static void server_handle_clients_output(Server *server)
     }
 }
 
-void server_handle_input(Server *server)
+void server_handle_input(server_t *server)
 {
     server_check_for_incomming_clients(server);
     server_handle_clients_input(server);
 }
 
-void server_handle_output(Server *server)
+void server_handle_output(server_t *server)
 {
     server_handle_clients_output(server);
+}
+
+void server_send_return_server_time_message(client_t *client, int64_t client_time)
+{
+    message_t *message = message_init_return_server_time(get_time(), client_time);
+    if (message == NULL)
+    {
+        log_error("Failed to create return server time message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
 }

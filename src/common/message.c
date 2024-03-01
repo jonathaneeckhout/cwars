@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <unistd.h>
+#include <endian.h>
 
 #include "common/logging.h"
 #include "common/message.h"
@@ -125,32 +126,6 @@ message_t *message_deserialize(char *buffer, uint32_t length)
     return message;
 }
 
-message_t *message_init_ping()
-{
-    message_t *message = message_init();
-    if (message == NULL)
-    {
-        return NULL;
-    }
-
-    message->type = MESSAGE_TYPE_PING;
-
-    return message;
-}
-
-message_t *message_init_pong()
-{
-    message_t *message = message_init();
-    if (message == NULL)
-    {
-        return NULL;
-    }
-
-    message->type = MESSAGE_TYPE_PONG;
-
-    return message;
-}
-
 void message_send_non_blocking(int sockfd, linked_list_t *message_queue)
 {
     if (message_queue == NULL)
@@ -249,4 +224,156 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
 
         linked_list_append(message_queue, message);
     }
+}
+
+message_t *message_init_ping()
+{
+    message_t *message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_PING;
+
+    return message;
+}
+
+message_t *message_init_pong()
+{
+    message_t *message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_PONG;
+
+    return message;
+}
+
+message_t *message_init_get_server_time(int64_t client_time)
+{
+    message_t *message = NULL;
+    int64_t network_client_time = 0;
+
+    message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_GET_SERVER_TIME;
+    message->length = sizeof(int64_t);
+    message->data = calloc(1, message->length);
+    if (message->data == NULL)
+    {
+        message_cleanup(&message);
+        return NULL;
+    }
+
+    network_client_time = htobe64(client_time);
+    memcpy(message->data, &network_client_time, message->length);
+
+    return message;
+}
+
+message_t *message_init_return_server_time(int64_t server_time, int64_t client_time)
+{
+    message_t *message = NULL;
+    int64_t network_server_time = 0;
+    int64_t network_client_time = 0;
+
+    message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_RETURN_SERVER_TIME;
+    message->length = 2 * sizeof(int64_t);
+    message->data = calloc(1, message->length);
+    if (message->data == NULL)
+    {
+        message_cleanup(&message);
+        return NULL;
+    }
+
+    network_server_time = htobe64(server_time);
+    memcpy(message->data, &network_server_time, sizeof(int64_t));
+
+    network_client_time = htobe64(client_time);
+    memcpy(message->data + sizeof(int64_t), &network_client_time, sizeof(int64_t));
+
+    return message;
+}
+
+message_get_server_time_response_t *message_get_server_time_response_deserialize(message_t *message)
+{
+    message_get_server_time_response_t *response = NULL;
+    int64_t network_client_time = 0;
+
+    if (message == NULL || message->type != MESSAGE_TYPE_GET_SERVER_TIME || message->length != sizeof(int64_t))
+    {
+        return NULL;
+    }
+
+    response = calloc(1, sizeof(message_get_server_time_response_t));
+    if (response == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(&network_client_time, message->data, sizeof(int64_t));
+    response->client_time = be64toh(network_client_time);
+
+    return response;
+}
+
+void message_get_server_time_response_cleanup(message_get_server_time_response_t **message)
+{
+    if (message == NULL || *message == NULL)
+    {
+        return;
+    }
+
+    free(*message);
+    *message = NULL;
+}
+
+message_return_server_time_response_t *message_return_server_time_response_deserialize(message_t *message)
+{
+    message_return_server_time_response_t *response = NULL;
+    int64_t network_server_time = 0;
+    int64_t network_client_time = 0;
+
+    if (message == NULL || message->type != MESSAGE_TYPE_RETURN_SERVER_TIME || message->length != 2 * sizeof(int64_t))
+    {
+        return NULL;
+    }
+
+    response = calloc(1, sizeof(message_return_server_time_response_t));
+    if (response == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(&network_server_time, message->data, sizeof(int64_t));
+    response->server_time = be64toh(network_server_time);
+
+    memcpy(&network_client_time, message->data + sizeof(int64_t), sizeof(int64_t));
+    response->client_time = be64toh(network_client_time);
+
+    return response;
+}
+
+void message_return_server_time_response_cleanup(message_return_server_time_response_t **message)
+{
+    if (message == NULL || *message == NULL)
+    {
+        return;
+    }
+
+    free(*message);
+    *message = NULL;
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <stdint.h>
 
 #include "common/logging.h"
 #include "common/config.h"
@@ -14,7 +15,7 @@ static void game_input(game_t *game)
     client_handle_input(game->client);
 }
 
-static void game_update(game_t *game, long delta_time)
+static void game_update(game_t *game, int64_t delta_time)
 {
     ctimer_update(game->ping_timer, delta_time);
     message_handler_update(game, delta_time);
@@ -25,7 +26,7 @@ static void game_output(game_t *game)
     client_handle_output(game->client);
 }
 
-void game_loop_once(game_t *game, long delta_time)
+void game_loop_once(game_t *game, int64_t delta_time)
 {
     game_input(game);
     game_update(game, delta_time);

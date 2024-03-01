@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "common/linked_list.h"
 
@@ -9,6 +10,8 @@ typedef struct
 {
     int sockfd;
     bool connected;
+    int64_t clock;
+    int64_t latency;
     linked_list_t *out_message_queue;
     linked_list_t *in_message_queue;
 } client_t;
@@ -22,5 +25,6 @@ void client_handle_input(client_t *client);
 void client_handle_output(client_t *client);
 
 void client_send_ping(client_t *client);
+void client_send_get_server_time_message(client_t *client);
 
 #endif // CLIENT_H

@@ -7,7 +7,7 @@
 typedef struct
 {
     bool running;
-    Server *server;
+    server_t *server;
 } game_t;
 
 game_t *game_init();

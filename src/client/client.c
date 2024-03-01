@@ -27,8 +27,9 @@ client_t *client_init()
     }
 
     client->sockfd = 0;
-
     client->connected = false;
+    client->clock = 0;
+    client->latency = 0;
 
     client->out_message_queue = linked_list_init();
     if (client->out_message_queue == NULL)
@@ -140,14 +141,24 @@ void client_handle_output(client_t *client)
     message_send_non_blocking(client->sockfd, client->out_message_queue);
 }
 
-void client_send_ping(client_t UNUSED *client)
+void client_send_ping(client_t *client)
 {
-    log_info("Sending ping to server");
-
     message_t *message = message_init_ping();
     if (message == NULL)
     {
         log_error("Failed to create message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
+}
+
+void client_send_get_server_time_message(client_t *client)
+{
+    message_t *message = message_init_get_server_time(get_time());
+    if (message == NULL)
+    {
+        log_error("Failed to create get server time message");
         return;
     }
 

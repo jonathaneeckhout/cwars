@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #include "common/logging.h"
 #include "common/config.h"
 #include "common/utils.h"
+
 #include "client/client_fsm.h"
 
 client_fsm_t *client_fsm_init()
@@ -50,13 +52,13 @@ void client_fsm_run(client_fsm_t *fsm)
 {
     fsm->running = true;
 
-    long last_time = get_time();
+    int64_t last_time = get_time();
 
     while (fsm->running)
     {
 
-        long current_time = get_time();
-        long delta_time = current_time - last_time;
+        int64_t current_time = get_time();
+        int64_t delta_time = current_time - last_time;
 
         switch (fsm->state)
         {
@@ -66,6 +68,8 @@ void client_fsm_run(client_fsm_t *fsm)
         case CLIENT_STATE_CONNECT:
             if (client_connect(fsm->game->client, SERVER_ADDRESS, SERVER_PORT))
             {
+                client_send_get_server_time_message(fsm->game->client);
+
                 fsm->state = CLIENT_STATE_RUN;
             }
             else
@@ -91,9 +95,9 @@ void client_fsm_run(client_fsm_t *fsm)
         }
 
         last_time = current_time;
-        long elapsed_time = get_time() - current_time;
+        int64_t elapsed_time = get_time() - current_time;
 
-        long diff = CLIENT_MICROSECONDS_PER_FRAME - elapsed_time;
+        int64_t diff = CLIENT_MICROSECONDS_PER_FRAME - elapsed_time;
         if (diff > 0)
         {
             usleep(diff);

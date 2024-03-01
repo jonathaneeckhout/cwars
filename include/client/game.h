@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "common/ctimer.h"
 #include "client/client.h"
@@ -16,6 +17,6 @@ typedef struct
 game_t *game_init();
 void game_cleanup(game_t **game);
 
-void game_loop_once(game_t *game, long delta_time);
+void game_loop_once(game_t *game, int64_t delta_time);
 
 #endif /* GAME_H */

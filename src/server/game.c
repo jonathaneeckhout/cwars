@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <stdint.h>
 #include <unistd.h>
 
 #include "common/logging.h"
@@ -15,7 +16,7 @@ static void game_input(game_t *game)
     server_handle_input(game->server);
 }
 
-static void game_update(game_t *game, long delta_time)
+static void game_update(game_t *game, int64_t delta_time)
 {
     message_handler_update(game, delta_time);
 }
@@ -25,7 +26,7 @@ static void game_output(game_t *game)
     server_handle_output(game->server);
 }
 
-void game_loop_once(game_t *game, long delta_time)
+void game_loop_once(game_t *game, int64_t delta_time)
 {
     game_input(game);
     game_update(game, delta_time);
@@ -36,18 +37,18 @@ void game_run(game_t *game)
 {
     game->running = true;
 
-    long last_time = get_time();
+    int64_t last_time = get_time();
 
     while (game->running)
     {
 
-        long current_time = get_time();
-        long delta_time = current_time - last_time;
+        int64_t current_time = get_time();
+        int64_t delta_time = current_time - last_time;
 
         game_loop_once(game, delta_time);
 
         last_time = current_time;
-        long elapsed_time = get_time() - current_time;
+        int64_t elapsed_time = get_time() - current_time;
 
         usleep(MICROSECONDS_PER_FRAME - elapsed_time);
     }
