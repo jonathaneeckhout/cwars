@@ -7,29 +7,26 @@
 #include "common/utils.h"
 #include "client/game.h"
 
-// Function to handle input
 static void game_input(game_t *game)
 {
-    client_loop_once(game->client);
+    client_handle_input(game->client);
 }
 
-// Function to update game state
 static void game_update(game_t *game, long delta_time)
 {
     ctimer_update(game->ping_timer, delta_time);
 }
 
-// Function to render output
-static void game_render()
+static void game_output(game_t *game)
 {
-    // TODO: Implement rendering logic
+    client_handle_output(game->client);
 }
 
 void game_loop_once(game_t *game, long delta_time)
 {
     game_input(game);
     game_update(game, delta_time);
-    game_render();
+    game_output(game);
 }
 
 game_t *game_init()

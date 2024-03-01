@@ -120,15 +120,18 @@ bool client_connect(client_t *client, const char *address, int port)
     return true;
 }
 
-void client_loop_once(client_t *client)
+void client_handle_input(client_t *client)
 {
     if (!client->connected)
     {
         return;
     }
 
-    message_read_non_blocking(client->sockfd, client->in_message_queue, CLIENT_MAX_MESSAGES_READ, &client->connected);
+    message_read_non_blocking(client->sockfd, client->in_message_queue, SERVER_MAX_MESSAGES_READ, &client->connected);
+}
 
+void client_handle_output(client_t *client)
+{
     if (!client->connected)
     {
         return;

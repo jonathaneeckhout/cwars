@@ -6,7 +6,7 @@
 #include "common/utils.h"
 #include "server/game.h"
 
-Game *game = NULL;
+game_t *game = NULL;
 
 // Shut down if ctrl+c is pressed
 void sig_handler(int UNUSED _sig)

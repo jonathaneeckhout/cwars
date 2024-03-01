@@ -20,6 +20,7 @@ typedef struct
 client_t *client_init(int sockfd, struct sockaddr_in addr);
 void client_cleanup(client_t **client);
 
-void client_loop_once(client_t *client);
+void client_handle_input(client_t *client);
+void client_handle_output(client_t *client);
 
 #endif // CLIENT_H

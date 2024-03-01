@@ -112,7 +112,7 @@ void server_cleanup(Server **server)
     printf("Server cleaned up\n");
 }
 
-void server_check_for_incomming_clients(Server *server)
+static void server_check_for_incomming_clients(Server *server)
 {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -163,7 +163,7 @@ void server_check_for_incomming_clients(Server *server)
     linked_list_append(server->clients, client);
 }
 
-void server_handle_clients(Server *server)
+static void server_handle_clients_input(Server *server)
 {
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
@@ -172,7 +172,7 @@ void server_handle_clients(Server *server)
         link_t *current_link = next_link;
         next_link = next_link->next;
 
-        client_loop_once(client);
+        client_handle_input(client);
 
         if (!client->connected)
         {
@@ -183,8 +183,25 @@ void server_handle_clients(Server *server)
     }
 }
 
-void server_loop_once(Server *server)
+static void server_handle_clients_output(Server *server)
+{
+    link_t *next_link = server->clients->start;
+    while (next_link != NULL)
+    {
+        client_t *client = (client_t *)link_get_data(next_link);
+        next_link = next_link->next;
+
+        client_handle_output(client);
+    }
+}
+
+void server_handle_input(Server *server)
 {
     server_check_for_incomming_clients(server);
-    server_handle_clients(server);
+    server_handle_clients_input(server);
+}
+
+void server_handle_output(Server *server)
+{
+    server_handle_clients_output(server);
 }

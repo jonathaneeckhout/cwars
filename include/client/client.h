@@ -17,7 +17,9 @@ client_t *client_init();
 void client_cleanup(client_t **client);
 
 bool client_connect(client_t *client, const char *address, int port);
-void client_loop_once(client_t *client);
+
+void client_handle_input(client_t *client);
+void client_handle_output(client_t *client);
 
 void client_send_ping(client_t *client);
 

@@ -11,6 +11,8 @@ typedef struct
 
 Server *server_init(int port);
 void server_cleanup(Server **server);
-void server_loop_once(Server *server);
+
+void server_handle_input(Server *server);
+void server_handle_output(Server *server);
 
 #endif // SERVER_H

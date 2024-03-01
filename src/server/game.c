@@ -8,25 +8,22 @@
 #include "common/utils.h"
 #include "server/game.h"
 
-// Function to handle input
-static void game_input(Game *game)
+static void game_input(game_t *game)
 {
-    server_loop_once(game->server);
+    server_handle_input(game->server);
 }
 
-// Function to update game state
-static void game_update()
+static void game_update(game_t UNUSED *game)
 {
     // log_info("Updating game state");
 }
 
-// Function to render output
-static void game_render()
+static void game_output(game_t *game)
 {
-    // TODO: Implement rendering logic
+    server_handle_output(game->server);
 }
 
-void game_run(Game *game)
+void game_run(game_t *game)
 {
     game->running = true;
 
@@ -36,8 +33,8 @@ void game_run(Game *game)
         long start_time = get_time();
 
         game_input(game);
-        game_update();
-        game_render();
+        game_update(game);
+        game_output(game);
 
         long end_time = get_time();
         long elapsed_time = end_time - start_time;
@@ -46,16 +43,16 @@ void game_run(Game *game)
     }
 }
 
-void game_stop(Game *game)
+void game_stop(game_t *game)
 {
     game->running = false;
 }
 
-Game *game_init()
+game_t *game_init()
 {
     log_info("Initializing game");
 
-    Game *game = malloc(sizeof(Game));
+    game_t *game = malloc(sizeof(game_t));
     if (game == NULL)
     {
         log_error("Failed to allocate memory for game");
@@ -74,7 +71,7 @@ Game *game_init()
     return game;
 }
 
-void game_cleanup(Game **game)
+void game_cleanup(game_t **game)
 {
     log_info("Cleaning up game");
 

@@ -8,12 +8,12 @@ typedef struct
 {
     bool running;
     Server *server;
-} Game;
+} game_t;
 
-Game *game_init();
-void game_cleanup(Game **game);
+game_t *game_init();
+void game_cleanup(game_t **game);
 
-void game_run(Game *game);
-void game_stop(Game *game);
+void game_run(game_t *game);
+void game_stop(game_t *game);
 
 #endif /* GAME_H */
