@@ -13,9 +13,8 @@ static void game_input(game_t *game)
     server_handle_input(game->server);
 }
 
-static void game_update(game_t UNUSED *game)
+static void game_update(game_t UNUSED *game, long UNUSED delta_time)
 {
-    // log_info("Updating game state");
 }
 
 static void game_output(game_t *game)
@@ -23,21 +22,29 @@ static void game_output(game_t *game)
     server_handle_output(game->server);
 }
 
+void game_loop_once(game_t *game, long delta_time)
+{
+    game_input(game);
+    game_update(game, delta_time);
+    game_output(game);
+}
+
 void game_run(game_t *game)
 {
     game->running = true;
 
+    long last_time = get_time();
+
     while (game->running)
     {
 
-        long start_time = get_time();
+        long current_time = get_time();
+        long delta_time = current_time - last_time;
 
-        game_input(game);
-        game_update(game);
-        game_output(game);
+        game_loop_once(game, delta_time);
 
-        long end_time = get_time();
-        long elapsed_time = end_time - start_time;
+        last_time = current_time;
+        long elapsed_time = get_time() - current_time;
 
         usleep(MICROSECONDS_PER_FRAME - elapsed_time);
     }

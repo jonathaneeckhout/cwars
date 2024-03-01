@@ -50,13 +50,13 @@ void client_fsm_run(client_fsm_t *fsm)
 {
     fsm->running = true;
 
-    long start_time = get_time();
+    long last_time = get_time();
 
     while (fsm->running)
     {
 
-        long delta_time = get_time() - start_time;
-        start_time = get_time();
+        long current_time = get_time();
+        long delta_time = current_time - last_time;
 
         switch (fsm->state)
         {
@@ -90,8 +90,8 @@ void client_fsm_run(client_fsm_t *fsm)
             break;
         }
 
-        long end_time = get_time();
-        long elapsed_time = end_time - start_time;
+        last_time = current_time;
+        long elapsed_time = get_time() - current_time;
 
         long diff = CLIENT_MICROSECONDS_PER_FRAME - elapsed_time;
         if (diff > 0)
