@@ -12,6 +12,8 @@ typedef struct
     bool connected;
     int64_t clock;
     int64_t latency;
+    int64_t delta_latency;
+    linked_list_t *latency_buffer;
     linked_list_t *out_message_queue;
     linked_list_t *in_message_queue;
 } client_t;

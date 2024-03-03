@@ -14,6 +14,7 @@
 #include "common/message.h"
 
 #include "client/client.h"
+#include "client/latency.h"
 
 client_t *client_init()
 {
@@ -30,11 +31,21 @@ client_t *client_init()
     client->connected = false;
     client->clock = 0;
     client->latency = 0;
+    client->delta_latency = 0;
+
+    client->latency_buffer = linked_list_init();
+    if (client->latency_buffer == NULL)
+    {
+        log_error("Failed to initialize latency buffer");
+        free(client);
+        return NULL;
+    }
 
     client->out_message_queue = linked_list_init();
     if (client->out_message_queue == NULL)
     {
         log_error("Failed to initialize out message queue");
+        linked_list_cleanup(&client->latency_buffer, (void (*)(void **)) & latency_info_cleanup);
         free(client);
         return NULL;
     }
@@ -43,6 +54,7 @@ client_t *client_init()
     if (client->in_message_queue == NULL)
     {
         log_error("Failed to initialize in message queue");
+        linked_list_cleanup(&client->latency_buffer, NULL);
         linked_list_cleanup(&client->out_message_queue, (void (*)(void **)) & message_cleanup);
         free(client);
         return NULL;
@@ -64,6 +76,8 @@ void client_cleanup(client_t **client)
     {
         close((*client)->sockfd);
     }
+
+    linked_list_cleanup(&(*client)->latency_buffer, (void (*)(void **)) & latency_info_cleanup);
 
     linked_list_cleanup(&(*client)->out_message_queue, (void (*)(void **)) & message_cleanup);
 

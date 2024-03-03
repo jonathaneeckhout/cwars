@@ -14,3 +14,15 @@ int32_t generate_unqiue_id()
     static int id = 0;
     return id++;
 }
+
+int compare_int64(const void *a, const void *b)
+{
+    int64_t arg1 = *(const int64_t *)a;
+    int64_t arg2 = *(const int64_t *)b;
+
+    if (arg1 < arg2)
+        return -1;
+    if (arg1 > arg2)
+        return 1;
+    return 0;
+}

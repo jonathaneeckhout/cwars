@@ -11,7 +11,6 @@ typedef struct
 {
     client_t *client;
     ctimer_t *latency_timer;
-
 } game_t;
 
 game_t *game_init();

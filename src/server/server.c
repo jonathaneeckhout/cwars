@@ -111,8 +111,6 @@ void server_cleanup(server_t **server)
     close((*server)->sockfd);
     free(*server);
     *server = NULL;
-
-    printf("Server cleaned up\n");
 }
 
 static void server_check_for_incomming_clients(server_t *server)
