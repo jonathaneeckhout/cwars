@@ -19,6 +19,7 @@ static void game_update(game_t *game, int64_t delta_time)
 {
     ctimer_update(game->latency_timer, delta_time);
     message_handler_update(game, delta_time);
+    client_update(game->client, delta_time);
 }
 
 static void game_output(game_t *game)
@@ -35,8 +36,6 @@ void game_loop_once(game_t *game, int64_t delta_time)
 
 game_t *game_init()
 {
-    log_info("Initializing game");
-
     game_t *game = calloc(1, sizeof(game_t));
     if (game == NULL)
     {
@@ -64,9 +63,6 @@ game_t *game_init()
 
 void game_cleanup(game_t **game)
 {
-
-    log_info("Cleaning up game");
-
     if (*game == NULL)
     {
         return;

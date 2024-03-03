@@ -15,14 +15,10 @@ static void message_handler_parse_message(client_t *client, message_t *message)
     switch (message->type)
     {
     case MESSAGE_TYPE_PING:
-        log_info("Received ping from %d", client->sockfd);
-
         server_send_pong_message(client);
 
         break;
-    case MESSAGE_TYPE_GET_SERVER_TIME:
-        log_info("Received get server time from %d", client->sockfd);
-
+    case MESSAGE_TYPE_GET_SERVER_TIME:;
         message_get_server_time_response_t *response = message_get_server_time_response_deserialize(message);
         if (response == NULL)
         {
@@ -36,9 +32,7 @@ static void message_handler_parse_message(client_t *client, message_t *message)
 
         break;
 
-    case MESSAGE_TYPE_GET_LATENCY:
-        log_info("Received get latency from %d", client->sockfd);
-
+    case MESSAGE_TYPE_GET_LATENCY:;
         message_get_latency_response_t *latency_response = message_get_latency_response_deserialize(message);
         if (latency_response == NULL)
         {

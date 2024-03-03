@@ -18,8 +18,6 @@
 
 client_t *client_init()
 {
-    log_info("Initializing client");
-
     client_t *client = calloc(1, sizeof(client_t));
     if (client == NULL)
     {
@@ -65,8 +63,6 @@ client_t *client_init()
 
 void client_cleanup(client_t **client)
 {
-    log_info("Cleaning up client");
-
     if (*client == NULL)
     {
         return;
@@ -153,6 +149,14 @@ void client_handle_output(client_t *client)
     }
 
     message_send_non_blocking(client->sockfd, client->out_message_queue);
+}
+
+void client_update(client_t *client, int64_t delta_time)
+{
+    if (client->connected)
+    {
+        latency_update(client, delta_time);
+    }
 }
 
 void client_send_ping(client_t *client)

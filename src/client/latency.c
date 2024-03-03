@@ -7,8 +7,6 @@
 
 latency_info_t *latency_info_init()
 {
-    log_info("Initializing latency info");
-
     latency_info_t *latency_info = calloc(1, sizeof(latency_info_t));
     if (latency_info == NULL)
     {
@@ -23,8 +21,6 @@ latency_info_t *latency_info_init()
 
 void latency_info_cleanup(latency_info_t **latency_info)
 {
-    log_info("Cleaning up latency info");
-
     if (*latency_info == NULL)
     {
         return;
@@ -34,7 +30,7 @@ void latency_info_cleanup(latency_info_t **latency_info)
     *latency_info = NULL;
 }
 
-void latency_handle_return_latency(game_t *game, int64_t client_time)
+void latency_handle_return_latency(client_t *client, int64_t client_time)
 {
     latency_info_t *latency_info = latency_info_init();
     if (latency_info == NULL)
@@ -44,14 +40,14 @@ void latency_handle_return_latency(game_t *game, int64_t client_time)
     }
 
     latency_info->latency = (get_time() - client_time) / 2;
-    linked_list_append(game->client->latency_buffer, latency_info);
+    linked_list_append(client->latency_buffer, latency_info);
 
-    if (game->client->latency_buffer->size == LATENCY_BUFFER_SIZE)
+    if (client->latency_buffer->size == LATENCY_BUFFER_SIZE)
     {
         int64_t total_latency = 0;
         int64_t total_counted = 0;
 
-        linked_list_t *latency_buffer = game->client->latency_buffer;
+        linked_list_t *latency_buffer = client->latency_buffer;
         int64_t latencies[LATENCY_BUFFER_SIZE];
         int index = 0;
 
@@ -88,9 +84,15 @@ void latency_handle_return_latency(game_t *game, int64_t client_time)
         // Calculate the average latency, excluding outliers
         int64_t average_latency = total_latency / total_counted;
 
-        game->client->delta_latency = average_latency - game->client->latency;
-        game->client->latency = average_latency;
+        client->delta_latency = average_latency - client->latency;
+        client->latency = average_latency;
 
-        linked_list_clear(game->client->latency_buffer, (void (*)(void **))latency_info_cleanup);
+        linked_list_clear(client->latency_buffer, (void (*)(void **))latency_info_cleanup);
     }
+}
+
+void latency_update(client_t *client, int64_t delta_time)
+{
+    client->clock += delta_time + client->delta_latency;
+    client->delta_latency = 0;
 }

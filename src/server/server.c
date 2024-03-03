@@ -19,8 +19,6 @@
 
 server_t *server_init(int port)
 {
-    log_info("Initializing server");
-
     server_t *server = calloc(1, sizeof(server_t));
     if (server == NULL)
     {
@@ -99,8 +97,6 @@ server_t *server_init(int port)
 
 void server_cleanup(server_t **server)
 {
-    log_info("Cleaning up server");
-
     if (server == NULL || *server == NULL)
     {
         return;

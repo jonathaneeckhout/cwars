@@ -10,8 +10,6 @@
 
 client_t *client_init(int sockfd, struct sockaddr_in addr)
 {
-    log_info("Initializing client");
-
     client_t *client = calloc(1, sizeof(client_t));
     if (client == NULL)
     {
@@ -47,8 +45,6 @@ client_t *client_init(int sockfd, struct sockaddr_in addr)
 
 void client_cleanup(client_t **client)
 {
-    log_info("Cleaning up client");
-
     if (*client == NULL)
     {
         return;

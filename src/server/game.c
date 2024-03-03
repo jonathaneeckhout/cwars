@@ -61,8 +61,6 @@ void game_stop(game_t *game)
 
 game_t *game_init()
 {
-    log_info("Initializing game");
-
     game_t *game = calloc(1, sizeof(game_t));
     if (game == NULL)
     {
@@ -84,8 +82,6 @@ game_t *game_init()
 
 void game_cleanup(game_t **game)
 {
-    log_info("Cleaning up game");
-
     if (game == NULL || *game == NULL)
     {
         return;

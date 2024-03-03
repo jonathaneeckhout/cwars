@@ -15,12 +15,9 @@ static void message_handler_parse_message(game_t *game, message_t *message)
     switch (message->type)
     {
     case MESSAGE_TYPE_PONG:
-        log_info("Received pong from %d", game->client->sockfd);
         break;
 
-    case MESSAGE_TYPE_RETURN_SERVER_TIME:
-        log_info("Received return server time from %d", game->client->sockfd);
-
+    case MESSAGE_TYPE_RETURN_SERVER_TIME:;
         message_return_server_time_response_t *response = message_return_server_time_response_deserialize(message);
         if (response == NULL)
         {
@@ -34,9 +31,7 @@ static void message_handler_parse_message(game_t *game, message_t *message)
         message_return_server_time_response_cleanup(&response);
 
         break;
-    case MESSAGE_TYPE_RETURN_LATENCY:
-        log_info("Received return latency from %d", game->client->sockfd);
-
+    case MESSAGE_TYPE_RETURN_LATENCY:;
         message_return_latency_response_t *latency_response = message_return_latency_response_deserialize(message);
         if (latency_response == NULL)
         {
@@ -44,7 +39,7 @@ static void message_handler_parse_message(game_t *game, message_t *message)
             return;
         }
 
-        latency_handle_return_latency(game, latency_response->client_time);
+        latency_handle_return_latency(game->client, latency_response->client_time);
 
         message_return_latency_response_cleanup(&latency_response);
 

@@ -11,8 +11,6 @@
 
 client_fsm_t *client_fsm_init()
 {
-    log_info("Initializing client fsm");
-
     client_fsm_t *client_fsm = calloc(1, sizeof(client_fsm_t));
     if (client_fsm == NULL)
     {
@@ -35,8 +33,6 @@ client_fsm_t *client_fsm_init()
 
 void client_fsm_cleanup(client_fsm_t **client_fsm)
 {
-    log_info("Cleaning up client fsm");
-
     if (*client_fsm == NULL)
     {
         return;
