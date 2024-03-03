@@ -58,3 +58,19 @@ add_executable(cwars_client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 # Add math library
 target_link_libraries(cwars_server m)
 target_link_libraries(cwars_client m)
+
+
+# Add CMocka library
+find_package(CMocka REQUIRED)
+
+# Add your test source file
+add_executable(test_linked_list 
+    test/linked_list/test_linked_list.c
+    src/common/linked_list.c
+)
+
+# Link your test executable with the CMocka library
+target_link_libraries(test_linked_list ${CMOCKA_LIBRARIES})
+
+# Add the test to CTest's test list
+add_test(NAME test_linked_list COMMAND test_linked_list)
