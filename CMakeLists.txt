@@ -88,8 +88,8 @@ add_custom_target(gcov
 add_custom_command(TARGET gcov
     COMMAND echo "=================== GCOV ===================="
     COMMAND cd ${COVERAGE_DIR} && find ../CMakeFiles -type f -iname "*.o" -exec gcov -c -b -f --long-file-names {} "\;"
-    COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ../../.. -s -g --html --html-details --exclude '.*test.*' -o ${COVERAGE_DIR}/report/index.html
-    COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ../../.. -s -g --exclude '.*test.*' | tee ${COVERAGE_DIR}/report/gcovr_summary.txt
+    COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ${CMAKE_SOURCE_DIR} -s -g --html --html-details --exclude '.*test.*' -o ${COVERAGE_DIR}/report/index.html
+    COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ${CMAKE_SOURCE_DIR} -s -g --exclude '.*test.*' | tee ${COVERAGE_DIR}/report/gcovr_summary.txt
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
