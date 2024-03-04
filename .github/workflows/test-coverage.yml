@@ -1,4 +1,4 @@
-name: Build and Test
+name: Test and generate coverage report
 
 on:
   push:
@@ -26,14 +26,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcmocka-dev gcovr
 
-      - name: Build project
+      - name: Generate coverage report
         run: |
           mkdir build
           cd build
           cmake ..
-          make
+          make gcov
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest --output-on-failure
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: build/coverage/report
