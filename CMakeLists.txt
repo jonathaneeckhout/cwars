@@ -73,3 +73,29 @@ target_link_libraries(test_linked_list ${CMOCKA_LIBRARIES})
 
 # Add the test to CTest's test list
 add_test(NAME test_linked_list COMMAND test_linked_list)
+
+# Create COVERAGE variable
+set(COVERAGE_DIR ${CMAKE_BINARY_DIR}/coverage)
+
+add_custom_target(gcov
+    COMMAND mkdir -p ${COVERAGE_DIR}
+    COMMAND mkdir -p ${COVERAGE_DIR}/report
+    COMMAND ${CMAKE_MAKE_PROGRAM}
+    COMMAND ${CMAKE_MAKE_PROGRAM} test
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_command(TARGET gcov
+    COMMAND echo "=================== GCOV ===================="
+    COMMAND cd ${COVERAGE_DIR} && find ../CMakeFiles -type f -iname "*.o" -exec gcov -c -b -f --long-file-names {} "\;"
+    COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ../../.. -s -g --html --html-details -o ${COVERAGE_DIR}/report/index.html
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_target(scrub
+COMMAND ${CMAKE_MAKE_PROGRAM} clean
+COMMAND rm -f ${OBJECT_DIR}/*.gcno
+COMMAND rm -f ${OBJECT_DIR}/*.gcda
+COMMAND rm -rf ${COVERAGE_DIR}
+WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
