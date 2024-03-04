@@ -55,7 +55,7 @@ void linked_list_cleanup(linked_list_t **list, void (*cleanup_function)(void **)
     }
 
     free(*list);
-    list = NULL;
+    *list = NULL;
 }
 
 void linked_list_clear(linked_list_t *list, void (*cleanup_function)(void **))

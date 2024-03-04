@@ -59,9 +59,10 @@ add_executable(cwars_client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 target_link_libraries(cwars_server m)
 target_link_libraries(cwars_client m)
 
-
 # Add CMocka library
 find_package(CMocka REQUIRED)
+
+enable_testing()
 
 # Add your test source file
 add_executable(test_linked_list 
