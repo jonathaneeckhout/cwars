@@ -28,36 +28,34 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -pedantic -std=c99")
 
 # Set the compiler flags for the debug build
-set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_DEBUG "-g -O0 -fprofile-arcs -ftest-coverage")
 
 # Set the compiler flags for the release build
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
 # Set the output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 set(CMAKE_BUILD_TYPE Debug)
 
-# Set the compiler flags
-set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -pedantic -std=c99")
-
-# Set the compiler flags for the debug build
-set(CMAKE_C_FLAGS_DEBUG "-g")
-
-# Set the compiler flags for the release build
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-
-# Set the output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Create a library from the common source files
+add_library(cwars_common STATIC ${COMMON_SOURCE_FILES})
 
 # Create an executable for cwars_server
-add_executable(cwars_server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+add_executable(cwars_server ${SERVER_SOURCE_FILES})
+
+target_link_libraries(cwars_server
+    m
+    cwars_common
+)
 
 # Create an executable for cwars_client
-add_executable(cwars_client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+add_executable(cwars_client ${CLIENT_SOURCE_FILES})
 
-# Add math library
-target_link_libraries(cwars_server m)
-target_link_libraries(cwars_client m)
+target_link_libraries(cwars_client
+    m
+    cwars_common
+)
 
 # Add CMocka library
 find_package(CMocka REQUIRED)
