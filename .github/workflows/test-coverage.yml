@@ -37,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage
-          path: build/coverage/report
+          path: build/coverage
