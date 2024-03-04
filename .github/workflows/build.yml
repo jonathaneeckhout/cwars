@@ -21,6 +21,11 @@ jobs:
         with:
           cmake-version: '3.16.x'
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcmocka-dev gcovr
+
       - name: Build project
         run: |
           mkdir build
