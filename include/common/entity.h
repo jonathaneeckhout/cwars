@@ -5,9 +5,9 @@
 
 typedef struct
 {
-    Vector2D position;
-    Vector2D velocity;
+    vector_t position;
+    vector_t velocity;
     int radius;
-} Entity;
+} entity_t;
 
 #endif // ENTITY_H

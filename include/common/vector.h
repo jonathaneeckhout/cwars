@@ -5,14 +5,14 @@ typedef struct
 {
     float x;
     float y;
-} Vector2D;
+} vector_t;
 
-Vector2D vector_create(float x, float y);
-Vector2D vector_add(Vector2D v1, Vector2D v2);
-Vector2D vector_subtract(Vector2D v1, Vector2D v2);
-Vector2D vector_multiply(Vector2D v, float scalar);
-float vector_dot_product(Vector2D v1, Vector2D v2);
-float vector_magnitude(Vector2D v);
-Vector2D vector_normalize(Vector2D v);
+vector_t vector_create(float x, float y);
+vector_t vector_add(vector_t v1, vector_t v2);
+vector_t vector_subtract(vector_t v1, vector_t v2);
+vector_t vector_multiply(vector_t v, float scalar);
+float vector_dot_product(vector_t v1, vector_t v2);
+float vector_magnitude(vector_t v);
+vector_t vector_normalize(vector_t v);
 
 #endif // VECTOR_H

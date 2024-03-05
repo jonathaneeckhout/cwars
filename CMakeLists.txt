@@ -65,12 +65,13 @@ enable_testing()
 # Function to add a test
 function(add_unit_test target target_sources)
     add_executable(${target} ${target_sources} ${ARGN})
-    target_link_libraries(${target} ${CMOCKA_LIBRARIES})
+    target_link_libraries(${target} ${CMOCKA_LIBRARIES} m)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
 add_unit_test(test_linked_list test/linked_list/test_linked_list.c src/common/linked_list.c)
 add_unit_test(test_utils test/utils/test_utils.c src/common/utils.c)
+add_unit_test(test_vector test/vector/test_vector.c src/common/vector.c)
 
 # Create COVERAGE variable
 set(COVERAGE_DIR ${CMAKE_BINARY_DIR}/coverage)

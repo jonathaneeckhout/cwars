@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <common/entity.h>
 
-Entity entity_create(Vector2D position, Vector2D velocity, int radius)
+entity_t entity_create(vector_t position, vector_t velocity, int radius)
 {
-    Entity e;
+    entity_t e;
     e.position = position;
     e.velocity = velocity;
     e.radius = radius;
