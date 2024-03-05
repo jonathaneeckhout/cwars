@@ -9,7 +9,7 @@ int64_t get_time()
     return ((int64_t)tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 
-int32_t generate_unqiue_id()
+int32_t generate_unique_id()
 {
     static int id = 0;
     return id++;

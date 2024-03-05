@@ -62,17 +62,15 @@ find_package(CMocka REQUIRED)
 
 enable_testing()
 
-# Add your test source file
-add_executable(test_linked_list 
-    test/linked_list/test_linked_list.c
-    src/common/linked_list.c
-)
+# Function to add a test
+function(add_unit_test target target_sources)
+    add_executable(${target} ${target_sources} ${ARGN})
+    target_link_libraries(${target} ${CMOCKA_LIBRARIES})
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
 
-# Link your test executable with the CMocka library
-target_link_libraries(test_linked_list ${CMOCKA_LIBRARIES})
-
-# Add the test to CTest's test list
-add_test(NAME test_linked_list COMMAND test_linked_list)
+add_unit_test(test_linked_list test/linked_list/test_linked_list.c src/common/linked_list.c)
+add_unit_test(test_utils test/utils/test_utils.c src/common/utils.c)
 
 # Create COVERAGE variable
 set(COVERAGE_DIR ${CMAKE_BINARY_DIR}/coverage)
