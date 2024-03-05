@@ -49,8 +49,7 @@ target_link_libraries(cwars_server
     cwars_common
 )
 
-# Create an executable for cwars_client
-add_executable(cwars_client ${CLIENT_SOURCE_FILES})
+add_library(cwars_client SHARED ${CLIENT_SOURCE_FILES})
 
 target_link_libraries(cwars_client
     m
