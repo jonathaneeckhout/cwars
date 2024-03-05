@@ -82,21 +82,18 @@ add_custom_target(gcov
     COMMAND mkdir -p ${COVERAGE_DIR}/report
     COMMAND ${CMAKE_MAKE_PROGRAM}
     COMMAND ${CMAKE_MAKE_PROGRAM} test
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 add_custom_command(TARGET gcov
     COMMAND echo "=================== GCOV ===================="
-    COMMAND cd ${COVERAGE_DIR} && find ../CMakeFiles -type f -iname "*.o" -exec gcov -c -b -f --long-file-names {} "\;"
+    COMMAND cd ${COVERAGE_DIR} && find ../CMakeFiles -type f -iname "*.o" -exec gcov -c -b -f --long-file-names --preserve-paths {} "\;"
     COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ${CMAKE_SOURCE_DIR} -s -g --html --html-details --exclude '.*test.*' -o ${COVERAGE_DIR}/report/index.html
     COMMAND cd ${COVERAGE_DIR} && gcovr -k -p -r ${CMAKE_SOURCE_DIR} -s -g --exclude '.*test.*' | tee ${COVERAGE_DIR}/report/gcovr_summary.txt
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 add_custom_target(scrub
-COMMAND ${CMAKE_MAKE_PROGRAM} clean
-COMMAND rm -f ${OBJECT_DIR}/*.gcno
-COMMAND rm -f ${OBJECT_DIR}/*.gcda
-COMMAND rm -rf ${COVERAGE_DIR}
-WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${CMAKE_MAKE_PROGRAM} clean
+    COMMAND rm -f ${OBJECT_DIR}/*.gcno
+    COMMAND rm -f ${OBJECT_DIR}/*.gcda
+    COMMAND rm -rf ${COVERAGE_DIR}
 )
