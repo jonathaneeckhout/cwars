@@ -58,6 +58,15 @@ game_t *game_init()
         return NULL;
     }
 
+    game->map = map_init(MAP_WIDTH, MAP_HEIGHT);
+    if (game->map == NULL)
+    {
+        client_cleanup(&game->client);
+        ctimer_cleanup(&game->latency_timer);
+        free(game);
+        return NULL;
+    }
+
     return game;
 }
 
@@ -69,8 +78,8 @@ void game_cleanup(game_t **game)
     }
 
     client_cleanup(&(*game)->client);
-
     ctimer_cleanup(&(*game)->latency_timer);
+    map_cleanup(&(*game)->map);
 
     free(*game);
     *game = NULL;

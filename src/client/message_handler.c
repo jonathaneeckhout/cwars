@@ -44,6 +44,24 @@ static void message_handler_parse_message(game_t *game, message_t *message)
         message_return_latency_response_cleanup(&latency_response);
 
         break;
+
+    case MESSAGE_TYPE_RETURN_ENTITIES:;
+        message_get_entities_response_t *entities_response = message_return_entities_response_deserialize(message);
+        if (entities_response == NULL)
+        {
+            log_error("Failed to deserialize return entities response");
+            return;
+        }
+
+        linked_list_clear(game->map->entities, (void (*)(void **)) & entity_cleanup);
+        for (uint32_t i = 0; i < entities_response->entity_count; i++)
+        {
+            linked_list_append(game->map->entities, entities_response->entities + i);
+        }
+
+        message_return_entities_response_cleanup(&entities_response);
+
+        break;
     default:
         break;
     }

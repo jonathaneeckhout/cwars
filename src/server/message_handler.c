@@ -10,7 +10,7 @@
 #include "server/server.h"
 #include "server/client.h"
 
-static void message_handler_parse_message(client_t *client, message_t *message)
+static void message_handler_parse_message(client_t *client, game_t *game, message_t *message)
 {
     switch (message->type)
     {
@@ -45,12 +45,16 @@ static void message_handler_parse_message(client_t *client, message_t *message)
         message_get_latency_response_cleanup(&latency_response);
 
         break;
+    case MESSAGE_TYPE_GET_ENTITIES:
+        server_send_return_entities_message(client, game->map->entities);
+
+        break;
     default:
         break;
     }
 }
 
-static void message_handler_update_client(game_t UNUSED *game, client_t *client, int64_t UNUSED delta_time)
+static void message_handler_update_client(game_t *game, client_t *client, int64_t UNUSED delta_time)
 {
     link_t *next_link = client->in_message_queue->start;
     while (next_link != NULL)
@@ -59,7 +63,7 @@ static void message_handler_update_client(game_t UNUSED *game, client_t *client,
         link_t *current_link = next_link;
         next_link = next_link->next;
 
-        message_handler_parse_message(client, message);
+        message_handler_parse_message(client, game, message);
 
         linked_list_remove(client->in_message_queue, &current_link, (void (*)(void **)) & message_cleanup);
     }

@@ -194,3 +194,15 @@ void client_send_get_latency_message(client_t *client)
 
     linked_list_append(client->out_message_queue, message);
 }
+
+void client_send_get_entities_message(client_t *client)
+{
+    message_t *message = message_init_get_entities();
+    if (message == NULL)
+    {
+        log_error("Failed to create get entities message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
+}

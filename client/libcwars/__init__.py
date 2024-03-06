@@ -82,11 +82,18 @@ class CWars:
         ]
         self.lib.client_connect.restype = ctypes.c_bool
 
+        self.lib.game_loop_once.argtypes = [ctypes.POINTER(Game), ctypes.c_int64]
+
+        self.__init_messages()
+
+    def __init_messages(self):
         self.lib.client_send_get_server_time_message.argtypes = [
             ctypes.POINTER(Client),
         ]
 
-        self.lib.game_loop_once.argtypes = [ctypes.POINTER(Game), ctypes.c_int64]
+        self.lib.client_send_get_entities_message.argtypes = [
+            ctypes.POINTER(Client),
+        ]
 
     def client_connect(self, ip: str, port: int):
         res = self.lib.client_connect(
@@ -95,6 +102,8 @@ class CWars:
 
         if res:
             self.lib.client_send_get_server_time_message(self.game.contents.client)
+
+            self.lib.client_send_get_entities_message(self.game.contents.client)
 
         return res
 

@@ -77,6 +77,14 @@ game_t *game_init()
         return NULL;
     }
 
+    game->map = map_init(MAP_WIDTH, MAP_HEIGHT);
+    if (game->map == NULL)
+    {
+        server_cleanup(&game->server);
+        free(game);
+        return NULL;
+    }
+
     return game;
 }
 
@@ -87,6 +95,7 @@ void game_cleanup(game_t **game)
         return;
     }
 
+    map_cleanup(&(*game)->map);
     server_cleanup(&(*game)->server);
     free(*game);
     *game = NULL;

@@ -19,4 +19,7 @@
 #define CLIENT_MS_PER_PING 1000
 #define CLIENT_MS_PER_CLOCK_SYNC 500
 
+#define MAP_WIDTH 1024
+#define MAP_HEIGHT 1024
+
 #endif // CONFIG_H

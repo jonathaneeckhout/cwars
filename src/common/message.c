@@ -183,6 +183,7 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
     for (unsigned int i = 0; i < max_messages_read; i++)
     {
         ssize_t bytes_received = 0;
+        ssize_t bytes_handled = 0;
 
         memset(buffer, 0, sizeof(buffer));
 
@@ -215,14 +216,19 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
             continue;
         }
 
-        message = message_deserialize(buffer, bytes_received);
-        if (message == NULL)
+        while (bytes_handled < bytes_received)
         {
-            log_error("Failed to deserialize message");
-            continue;
-        }
+            message = message_deserialize(buffer + bytes_handled, bytes_received - bytes_handled);
+            if (message == NULL)
+            {
+                log_error("Failed to deserialize message");
+                break;
+            }
 
-        linked_list_append(message_queue, message);
+            linked_list_append(message_queue, message);
+
+            bytes_handled += MESSAGE_HEADER_SIZE + message->length;
+        }
     }
 }
 
@@ -490,6 +496,118 @@ void message_return_latency_response_cleanup(message_return_latency_response_t *
     if (message == NULL || *message == NULL)
     {
         return;
+    }
+
+    free(*message);
+    *message = NULL;
+}
+
+message_t *message_init_get_entities()
+{
+    message_t *message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_GET_ENTITIES;
+
+    return message;
+}
+
+void message_get_entities_cleanup(message_t **message)
+{
+    if (message == NULL || *message == NULL)
+    {
+        return;
+    }
+
+    message_cleanup(message);
+}
+
+message_t *message_init_return_entities(int64_t timestamp, uint32_t entity_count, entity_t *entities)
+{
+    message_t *message = NULL;
+    int64_t network_timestamp = 0;
+    uint32_t network_entity_count = 0;
+
+    message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_RETURN_ENTITIES;
+    message->length = sizeof(int64_t) + sizeof(uint32_t) + entity_count * sizeof(entity_t);
+    message->data = calloc(1, message->length);
+    if (message->data == NULL)
+    {
+        message_cleanup(&message);
+        return NULL;
+    }
+
+    network_timestamp = htobe64(timestamp);
+    memcpy(message->data, &network_timestamp, sizeof(int64_t));
+
+    network_entity_count = htonl(entity_count);
+    memcpy(message->data + sizeof(int64_t), &network_entity_count, sizeof(uint32_t));
+
+    memcpy(message->data + sizeof(int64_t) + sizeof(uint32_t), entities, entity_count * sizeof(entity_t));
+
+    return message;
+}
+
+message_get_entities_response_t *message_return_entities_response_deserialize(message_t *message)
+{
+    message_get_entities_response_t *response = NULL;
+    int64_t network_timestamp = 0;
+    uint32_t network_entity_count = 0;
+
+    if (message == NULL || message->type != MESSAGE_TYPE_RETURN_ENTITIES || message->length < sizeof(int64_t) + sizeof(uint32_t))
+    {
+        return NULL;
+    }
+
+    response = calloc(1, sizeof(message_get_entities_response_t));
+    if (response == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(&network_timestamp, message->data, sizeof(int64_t));
+    response->timestamp = be64toh(network_timestamp);
+
+    memcpy(&network_entity_count, message->data + sizeof(int64_t), sizeof(uint32_t));
+    response->entity_count = ntohl(network_entity_count);
+
+    if (message->length != sizeof(int64_t) + sizeof(uint32_t) + response->entity_count * sizeof(entity_t))
+    {
+        free(response);
+        return NULL;
+    }
+
+    response->entities = calloc(response->entity_count, sizeof(entity_t));
+    if (response->entities == NULL)
+    {
+        free(response);
+        return NULL;
+    }
+
+    memcpy(response->entities, message->data + sizeof(int64_t) + sizeof(uint32_t), response->entity_count * sizeof(entity_t));
+
+    return response;
+}
+
+void message_return_entities_response_cleanup(message_get_entities_response_t **message)
+{
+    if (message == NULL || *message == NULL)
+    {
+        return;
+    }
+
+    if ((*message)->entities != NULL)
+    {
+        free((*message)->entities);
     }
 
     free(*message);

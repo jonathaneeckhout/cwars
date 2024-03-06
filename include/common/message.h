@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "common/linked_list.h"
+#include "common/entity.h"
 
 #define MESSAGE_PROTOCOL_ID 0x8da685d9
 #define MESSAGE_MAX_MTU 1200
@@ -15,6 +16,8 @@
 #define MESSAGE_TYPE_RETURN_SERVER_TIME 0x04
 #define MESSAGE_TYPE_GET_LATENCY 0x05
 #define MESSAGE_TYPE_RETURN_LATENCY 0x06
+#define MESSAGE_TYPE_GET_ENTITIES 0x07
+#define MESSAGE_TYPE_RETURN_ENTITIES 0x08
 
 typedef struct
 {
@@ -45,6 +48,13 @@ typedef struct
     int64_t client_time;
 } message_return_latency_response_t;
 
+typedef struct
+{
+    int64_t timestamp;
+    uint32_t entity_count;
+    entity_t *entities;
+} message_get_entities_response_t;
+
 message_t *message_init();
 void message_cleanup(message_t **message);
 void message_serialize(message_t *message, char *buffer, uint32_t *length);
@@ -71,5 +81,12 @@ void message_get_latency_response_cleanup(message_get_latency_response_t **messa
 message_t *message_init_return_latency(int64_t client_time);
 message_return_latency_response_t *message_return_latency_response_deserialize(message_t *message);
 void message_return_latency_response_cleanup(message_return_latency_response_t **message);
+
+message_t *message_init_get_entities();
+void message_get_entities_cleanup(message_t **message);
+
+message_t *message_init_return_entities(int64_t timestamp, uint32_t entity_count, entity_t *entities);
+message_get_entities_response_t *message_return_entities_response_deserialize(message_t *message);
+void message_return_entities_response_cleanup(message_get_entities_response_t **message);
 
 #endif // MESSAGE_H

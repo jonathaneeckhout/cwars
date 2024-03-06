@@ -2,12 +2,16 @@
 #define GAME_H
 
 #include <stdbool.h>
+
+#include "common/map.h"
+
 #include "server/server.h"
 
 typedef struct
 {
     bool running;
     server_t *server;
+    map_t *map;
 } game_t;
 
 game_t *game_init();

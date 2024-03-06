@@ -5,12 +5,15 @@
 #include <stdint.h>
 
 #include "common/ctimer.h"
+#include "common/map.h"
+
 #include "client/client.h"
 
 typedef struct
 {
     client_t *client;
     ctimer_t *latency_timer;
+    map_t *map;
 } game_t;
 
 game_t *game_init();

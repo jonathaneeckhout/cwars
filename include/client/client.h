@@ -30,5 +30,6 @@ void client_update(client_t *client, int64_t delta_time);
 void client_send_ping(client_t *client);
 void client_send_get_server_time_message(client_t *client);
 void client_send_get_latency_message(client_t *client);
+void client_send_get_entities_message(client_t *client);
 
 #endif // CLIENT_H
