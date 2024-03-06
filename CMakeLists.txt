@@ -41,18 +41,20 @@ set(CMAKE_BUILD_TYPE Debug)
 # Create a library from the common source files
 add_library(cwars_common STATIC ${COMMON_SOURCE_FILES})
 
+target_link_libraries(cwars_common
+    m
+)
+
 # Create an executable for cwars_server
 add_executable(cwars_server ${SERVER_SOURCE_FILES})
 
 target_link_libraries(cwars_server
-    m
     cwars_common
 )
 
 add_library(cwars_client SHARED ${CLIENT_SOURCE_FILES})
 
 target_link_libraries(cwars_client
-    m
     cwars_common
 )
 

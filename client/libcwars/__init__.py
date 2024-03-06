@@ -45,10 +45,19 @@ class Client(ctypes.Structure):
     ]
 
 
+class Map(ctypes.Structure):
+    _fields_ = [
+        ("entities", ctypes.POINTER(LinkedList)),
+        ("width", ctypes.c_uint32),
+        ("height", ctypes.c_uint32),
+    ]
+
+
 class Game(ctypes.Structure):
     _fields_ = [
         ("client", ctypes.POINTER(Client)),
         ("latency_timer", ctypes.POINTER(CTimer)),
+        ("map", ctypes.POINTER(Map)),
     ]
 
 
