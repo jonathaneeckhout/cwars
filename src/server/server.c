@@ -203,60 +203,14 @@ void server_handle_output(server_t *server)
     server_handle_clients_output(server);
 }
 
-void server_send_pong_message(client_t *client)
+void server_update(server_t *server, game_t *game, int64_t delta_time)
 {
-    message_t *pong_message = message_init_pong();
-    if (pong_message == NULL)
+    link_t *next_link = server->clients->start;
+    while (next_link != NULL)
     {
-        log_error("Failed to initialize pong message");
-        return;
+        client_t *client = (client_t *)link_get_data(next_link);
+        next_link = next_link->next;
+
+        client_update(client, game, delta_time);
     }
-
-    linked_list_append(client->out_message_queue, pong_message);
-}
-
-void server_send_return_server_time_message(client_t *client, int64_t client_time)
-{
-    message_t *message = message_init_return_server_time(get_time(), client_time);
-    if (message == NULL)
-    {
-        log_error("Failed to create return server time message");
-        return;
-    }
-
-    linked_list_append(client->out_message_queue, message);
-}
-
-void server_send_return_latency_message(client_t *client, int64_t client_time)
-{
-    message_t *message = message_init_return_latency(client_time);
-    if (message == NULL)
-    {
-        log_error("Failed to create return latency message");
-        return;
-    }
-
-    linked_list_append(client->out_message_queue, message);
-}
-
-void server_send_return_entities_message(client_t *client, linked_list_t *entities)
-{
-    entity_t entities_array[entities->size];
-    memset(entities_array, 0, sizeof(entities_array));
-
-    int index = 0;
-    for_each_link(item, entities)
-    {
-        entity_t *entity = (entity_t *)link_get_data(item);
-        memcpy(&entities_array[index], entity, sizeof(entity_t));
-    }
-
-    message_t *message = message_init_return_entities(get_time(), entities->size, entities_array);
-    if (message == NULL)
-    {
-        log_error("Failed to create return entities message");
-        return;
-    }
-
-    linked_list_append(client->out_message_queue, message);
 }

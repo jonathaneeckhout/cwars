@@ -1,18 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <stdbool.h>
-
-#include "common/map.h"
-
-#include "server/server.h"
-
-typedef struct
-{
-    bool running;
-    server_t *server;
-    map_t *map;
-} game_t;
+#include "server/types.h"
 
 game_t *game_init();
 void game_cleanup(game_t **game);

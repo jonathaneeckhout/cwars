@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "common/linked_list.h"
+#include "common/vector.h"
 
 typedef struct
 {
@@ -31,5 +32,6 @@ void client_send_ping(client_t *client);
 void client_send_get_server_time_message(client_t *client);
 void client_send_get_latency_message(client_t *client);
 void client_send_get_entities_message(client_t *client);
+void client_send_create_entity_message(client_t *client, vector_t position);
 
 #endif // CLIENT_H

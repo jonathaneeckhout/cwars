@@ -15,7 +15,7 @@ static void message_handler_parse_message(client_t *client, game_t *game, messag
     switch (message->type)
     {
     case MESSAGE_TYPE_PING:
-        server_send_pong_message(client);
+        client_send_pong_message(client);
 
         break;
     case MESSAGE_TYPE_GET_SERVER_TIME:;
@@ -26,7 +26,7 @@ static void message_handler_parse_message(client_t *client, game_t *game, messag
             return;
         }
 
-        server_send_return_server_time_message(client, response->client_time);
+        client_send_return_server_time_message(client, response->client_time);
 
         message_get_server_time_response_cleanup(&response);
 
@@ -40,13 +40,36 @@ static void message_handler_parse_message(client_t *client, game_t *game, messag
             return;
         }
 
-        server_send_return_latency_message(client, latency_response->client_time);
+        client_send_return_latency_message(client, latency_response->client_time);
 
         message_get_latency_response_cleanup(&latency_response);
 
         break;
     case MESSAGE_TYPE_GET_ENTITIES:
-        server_send_return_entities_message(client, game->map->entities);
+        client_send_return_entities_message(client, game->map->entities);
+
+        break;
+
+    case MESSAGE_TYPE_CREATE_ENTITY:;
+        message_create_entity_t *create_entity = message_create_entity_deserialize(message);
+        if (create_entity == NULL)
+        {
+            log_error("Failed to deserialize create entity message");
+            return;
+        }
+
+        entity_t *entity = entity_init(create_entity->position, vector_create(0, 0), 32);
+        if (entity == NULL)
+        {
+            log_error("Failed to create entity");
+            return;
+        }
+
+        log_info("Created entity at (%f, %f)", create_entity->position.x, create_entity->position.y);
+
+        map_add_entity(game->map, entity);
+
+        message_create_entity_cleanup(&create_entity);
 
         break;
     default:

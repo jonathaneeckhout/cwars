@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "common/linked_list.h"
+#include "common/vector.h"
 #include "common/entity.h"
 
 #define MESSAGE_PROTOCOL_ID 0x8da685d9
@@ -18,6 +19,7 @@
 #define MESSAGE_TYPE_RETURN_LATENCY 0x06
 #define MESSAGE_TYPE_GET_ENTITIES 0x07
 #define MESSAGE_TYPE_RETURN_ENTITIES 0x08
+#define MESSAGE_TYPE_CREATE_ENTITY 0x09
 
 typedef struct
 {
@@ -55,6 +57,11 @@ typedef struct
     entity_t *entities;
 } message_get_entities_response_t;
 
+typedef struct
+{
+    vector_t position;
+} message_create_entity_t;
+
 message_t *message_init();
 void message_cleanup(message_t **message);
 void message_serialize(message_t *message, char *buffer, uint32_t *length);
@@ -88,5 +95,9 @@ void message_get_entities_cleanup(message_t **message);
 message_t *message_init_return_entities(int64_t timestamp, uint32_t entity_count, entity_t *entities);
 message_get_entities_response_t *message_return_entities_response_deserialize(message_t *message);
 void message_return_entities_response_cleanup(message_get_entities_response_t **message);
+
+message_t *message_init_create_entity(vector_t position);
+message_create_entity_t *message_create_entity_deserialize(message_t *message);
+void message_create_entity_cleanup(message_create_entity_t **message);
 
 #endif // MESSAGE_H

@@ -9,6 +9,7 @@
 #include "common/utils.h"
 
 #include "server/game.h"
+#include "server/server.h"
 #include "server/message_handler.h"
 
 static void game_input(game_t *game)
@@ -19,6 +20,7 @@ static void game_input(game_t *game)
 static void game_update(game_t *game, int64_t delta_time)
 {
     message_handler_update(game, delta_time);
+    server_update(game->server, game, delta_time);
 }
 
 static void game_output(game_t *game)

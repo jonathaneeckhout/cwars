@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "common/logging.h"
+#include "common/utils.h"
 #include "common/message.h"
 #include "common/config.h"
 
@@ -80,4 +82,72 @@ void client_handle_output(client_t *client)
     }
 
     message_send_non_blocking(client->sockfd, client->out_message_queue);
+}
+
+void client_update(client_t *client, game_t *game, int64_t UNUSED delta_time)
+{
+    if (!client->connected)
+    {
+        return;
+    }
+
+    client_send_return_entities_message(client, game->map->entities);
+}
+
+void client_send_pong_message(client_t *client)
+{
+    message_t *pong_message = message_init_pong();
+    if (pong_message == NULL)
+    {
+        log_error("Failed to initialize pong message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, pong_message);
+}
+
+void client_send_return_server_time_message(client_t *client, int64_t client_time)
+{
+    message_t *message = message_init_return_server_time(get_time(), client_time);
+    if (message == NULL)
+    {
+        log_error("Failed to create return server time message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
+}
+
+void client_send_return_latency_message(client_t *client, int64_t client_time)
+{
+    message_t *message = message_init_return_latency(client_time);
+    if (message == NULL)
+    {
+        log_error("Failed to create return latency message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
+}
+
+void client_send_return_entities_message(client_t *client, linked_list_t *entities)
+{
+    entity_t entities_array[entities->size];
+    memset(entities_array, 0, sizeof(entities_array));
+
+    int index = 0;
+    for_each_link(item, entities)
+    {
+        entity_t *entity = (entity_t *)link_get_data(item);
+        memcpy(&entities_array[index], entity, sizeof(entity_t));
+    }
+
+    message_t *message = message_init_return_entities(get_time(), entities->size, entities_array);
+    if (message == NULL)
+    {
+        log_error("Failed to create return entities message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
 }

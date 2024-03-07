@@ -9,8 +9,9 @@ SCREEN_HEIGHT = 600
 FPS = 30
 SCREEN_TITLE = "CWars"
 
+
 def signal_handler(sig, frame):
-    print('You pressed Ctrl+C!')
+    print("You pressed Ctrl+C!")
     arcade.close_window()
 
 
@@ -44,7 +45,31 @@ class MyGame(arcade.Window):
 
         self.clear()
 
+        entities = self.cwars.get_entities()
+
+        for entity in entities:
+            arcade.draw_circle_filled(
+                entity.position.x, entity.position.y, 32, arcade.color.WHITE
+            )
+
         # Code to draw the screen goes here
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        """Called whenever the mouse button is clicked."""
+
+        print(f"Click at ({x}, {y})")
+
+        self.cwars.create_entity(x, y)
+
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed."""
+
+        # Jump
+        if key == arcade.key.UP or key == arcade.key.W:
+            entities = self.cwars.get_entities()
+
+            for entity in entities:
+                print(f"Jumping entity at ({entity.position.x}, {entity.position.y})")
 
     def on_update(self, delta_time: float):
         """Movement and game logic"""

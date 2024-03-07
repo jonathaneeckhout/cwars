@@ -198,6 +198,11 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
             else
             {
                 log_error("Failed to receive message");
+                // Something went wrong, better close the connection
+                if (connected != NULL)
+                {
+                    *connected = false;
+                }
                 return;
             }
         }
@@ -608,6 +613,67 @@ void message_return_entities_response_cleanup(message_get_entities_response_t **
     if ((*message)->entities != NULL)
     {
         free((*message)->entities);
+    }
+
+    free(*message);
+    *message = NULL;
+}
+
+message_t *message_init_create_entity(vector_t position)
+{
+    message_t *message = NULL;
+    vector_t network_position = {0};
+
+    message = message_init();
+    if (message == NULL)
+    {
+        return NULL;
+    }
+
+    message->type = MESSAGE_TYPE_CREATE_ENTITY;
+    message->length = sizeof(vector_t);
+    message->data = calloc(1, message->length);
+    if (message->data == NULL)
+    {
+        message_cleanup(&message);
+        return NULL;
+    }
+
+    network_position.x = htobe64(position.x);
+    network_position.y = htobe64(position.y);
+    memcpy(message->data, &network_position, message->length);
+
+    return message;
+}
+
+message_create_entity_t *message_create_entity_deserialize(message_t *message)
+{
+    message_create_entity_t *response = NULL;
+    vector_t network_position = {0};
+
+    if (message == NULL || message->type != MESSAGE_TYPE_CREATE_ENTITY || message->length != sizeof(vector_t))
+    {
+        return NULL;
+    }
+
+    response = calloc(1, sizeof(message_create_entity_t));
+    if (response == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(&network_position, message->data, sizeof(vector_t));
+    response->position.x = be64toh(network_position.x);
+    response->position.y = be64toh(network_position.y);
+
+    return response;
+}
+
+void message_create_entity_cleanup(message_create_entity_t **message)
+{
+    if (message == NULL || *message == NULL)
+    {
+        return;
     }
 
     free(*message);

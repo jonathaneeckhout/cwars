@@ -3,6 +3,21 @@ import ctypes
 LOG_LEVEL_DEBUG = 7
 
 
+class Vector(ctypes.Structure):
+    _fields_ = [
+        ("x", ctypes.c_float),
+        ("y", ctypes.c_float),
+    ]
+
+
+class Entity(ctypes.Structure):
+    _fields_ = [
+        ("position", Vector),
+        ("velocity", Vector),
+        ("radius", ctypes.c_int),
+    ]
+
+
 class CTimer(ctypes.Structure):
     _fields_ = [
         ("timeout", ctypes.c_uint32),
@@ -104,6 +119,11 @@ class CWars:
             ctypes.POINTER(Client),
         ]
 
+        self.lib.client_send_create_entity_message.argtypes = [
+            ctypes.POINTER(Client),
+            Vector,
+        ]
+
     def client_connect(self, ip: str, port: int):
         res = self.lib.client_connect(
             self.game.contents.client, ip.encode("utf-8"), port
@@ -116,6 +136,29 @@ class CWars:
 
         return res
 
+    def create_entity(self, x: int, y: int):
+        pos = Vector(x, y)
+
+        self.lib.client_send_create_entity_message(self.game.contents.client, pos)
+
     def update(self, delta_time: int):
         if self.game.contents.client.contents.connected:
             self.lib.game_loop_once(self.game, delta_time)
+
+    def get_entities(self):
+        entities = []
+
+        link = self.game.contents.map.contents.entities.contents.start
+
+        while link:
+            entity = link.contents.data
+
+            # typecast to Entity
+            entity = ctypes.cast(entity, ctypes.POINTER(Entity)).contents
+
+
+            entities.append(entity)
+
+            link = link.contents.next
+
+        return entities

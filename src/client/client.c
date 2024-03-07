@@ -206,3 +206,15 @@ void client_send_get_entities_message(client_t *client)
 
     linked_list_append(client->out_message_queue, message);
 }
+
+void client_send_create_entity_message(client_t *client, vector_t position)
+{
+    message_t *message = message_init_create_entity(position);
+    if (message == NULL)
+    {
+        log_error("Failed to create create entity message");
+        return;
+    }
+
+    linked_list_append(client->out_message_queue, message);
+}
