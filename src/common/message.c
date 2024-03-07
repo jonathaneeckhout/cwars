@@ -536,6 +536,11 @@ message_t *message_init_return_entities(int64_t timestamp, uint32_t entity_count
     int64_t network_timestamp = 0;
     uint32_t network_entity_count = 0;
 
+    if (entity_count > 0 && entities == NULL)
+    {
+        return NULL;
+    }
+
     message = message_init();
     if (message == NULL)
     {

@@ -57,7 +57,7 @@ static void message_handler_parse_message(game_t *game, message_t *message)
         for (uint32_t i = 0; i < entities_response->entity_count; i++)
         {
             entity_t *entity = entity_init(entities_response->entities[i].position, entities_response->entities[i].velocity, entities_response->entities[i].radius);
-            linked_list_append(game->map->entities, entity);
+            map_add_entity(game->map, entity);
         }
 
         message_return_entities_response_cleanup(&entities_response);

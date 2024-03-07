@@ -18,4 +18,6 @@ void map_cleanup(map_t **map);
 void map_add_entity(map_t *map, void *entity);
 void map_remove_entity(map_t *map, void *entity);
 
+void map_print_all_entities(map_t *map);
+
 #endif // MAP_H

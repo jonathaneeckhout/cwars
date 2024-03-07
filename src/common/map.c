@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "common/map.h"
 #include "common/entity.h"
@@ -50,5 +51,14 @@ void map_remove_entity(map_t *map, void *entity)
             linked_list_remove(map->entities, &link, NULL);
             return;
         }
+    }
+}
+
+void map_print_all_entities(map_t *map)
+{
+    for_each_link(link, map->entities)
+    {
+        entity_t *entity = link_get_data(link);
+        printf("Entity at (%f, %f)\n", entity->position.x, entity->position.y);
     }
 }
