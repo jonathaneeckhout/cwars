@@ -28,3 +28,29 @@ void entity_cleanup(entity_t **entity)
     free(*entity);
     *entity = NULL;
 }
+
+void entity_update(entity_t *entity, int64_t delta_time)
+{
+    entity->position.x += entity->velocity.x * delta_time/1000.0;
+    if (entity->position.x < 0)
+    {
+        entity->position.x = 0;
+        entity->velocity.x = -entity->velocity.x;
+    }
+    else if (entity->position.x > 800)
+    {
+        entity->position.x = 800;
+        entity->velocity.x = -entity->velocity.x;
+    }
+    entity->position.y += entity->velocity.y * delta_time / 1000.0;
+    if (entity->position.y < 0)
+    {
+        entity->position.y = 0;
+        entity->velocity.y = -entity->velocity.y;
+    }
+    else if (entity->position.y > 600)
+    {
+        entity->position.y = 600;
+        entity->velocity.y = -entity->velocity.y;
+    }
+}

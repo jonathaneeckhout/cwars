@@ -37,6 +37,15 @@ void map_cleanup(map_t **map)
     *map = NULL;
 }
 
+void map_update(map_t *map, int64_t delta_time)
+{
+    for_each_link(link, map->entities)
+    {
+        entity_t *entity = link_get_data(link);
+        entity_update(entity, delta_time);
+    }
+}
+
 void map_add_entity(map_t *map, void *entity)
 {
     linked_list_append(map->entities, entity);
