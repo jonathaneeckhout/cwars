@@ -133,16 +133,19 @@ void client_send_return_latency_message(client_t *client, int64_t client_time)
 void client_send_return_entities_message(client_t *client, linked_list_t *entities)
 {
     entity_t entities_array[entities->size];
+    int index = 0;
+    message_t *message = NULL;
+
     memset(entities_array, 0, sizeof(entities_array));
 
-    int index = 0;
     for_each_link(item, entities)
     {
         entity_t *entity = (entity_t *)link_get_data(item);
-        memcpy(&entities_array[index], entity, sizeof(entity_t));
+        entities_array[index] = *entity;
+        index++;
     }
 
-    message_t *message = message_init_return_entities(get_time(), entities->size, entities_array);
+    message = message_init_return_entities(get_time(), entities->size, entities_array);
     if (message == NULL)
     {
         log_error("Failed to create return entities message");
