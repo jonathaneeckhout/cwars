@@ -12,6 +12,7 @@ typedef struct
     int sockfd;
     struct sockaddr_in addr;
     bool connected;
+    char *username;
     bool logged_in;
     linked_list_t *out_message_queue;
     linked_list_t *in_message_queue;

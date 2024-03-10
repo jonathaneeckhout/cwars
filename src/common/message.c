@@ -6,6 +6,7 @@
 #include <endian.h>
 
 #include "common/logging.h"
+#include "common/utils.h"
 #include "common/message.h"
 
 message_t *message_init()
@@ -644,8 +645,8 @@ message_t *message_init_create_entity(vector_t position)
         return NULL;
     }
 
-    network_position.x = htobe64(position.x);
-    network_position.y = htobe64(position.y);
+    network_position.x = htonll(position.x);
+    network_position.y = htonll(position.y);
     memcpy(message->data, &network_position, message->length);
 
     return message;
@@ -668,8 +669,8 @@ message_create_entity_t *message_create_entity_deserialize(message_t *message)
     }
 
     memcpy(&network_position, message->data, sizeof(vector_t));
-    response->position.x = be64toh(network_position.x);
-    response->position.y = be64toh(network_position.y);
+    response->position.x = ntohll(network_position.x);
+    response->position.y = ntohll(network_position.y);
 
     return response;
 }

@@ -5,16 +5,17 @@ LOG_LEVEL_DEBUG = 7
 
 class Vector(ctypes.Structure):
     _fields_ = [
-        ("x", ctypes.c_float),
-        ("y", ctypes.c_float),
+        ("x", ctypes.c_int64),
+        ("y", ctypes.c_int64),
     ]
 
 
 class Entity(ctypes.Structure):
     _fields_ = [
+        ("id", ctypes.c_char * 37),
         ("position", Vector),
         ("velocity", Vector),
-        ("radius", ctypes.c_int),
+        ("radius", ctypes.c_uint32),
     ]
 
 
@@ -108,6 +109,16 @@ class CWars:
 
         self.lib.game_loop_once.argtypes = [ctypes.POINTER(Game), ctypes.c_int64]
 
+        self.lib.fixed_from_int.argtypes = [ctypes.c_int32]
+
+        self.lib.fixed_from_int.restype = ctypes.c_int64
+
+        self.lib.fixed_to_float.argtypes = [ctypes.c_int64]
+
+        self.lib.fixed_to_float.restype = ctypes.c_float
+
+        self.lib.vector_print.argtypes = [Vector]
+
         self.__init_messages()
 
     def __init_messages(self):
@@ -137,7 +148,10 @@ class CWars:
         return res
 
     def create_entity(self, x: int, y: int):
-        pos = Vector(x, y)
+        print(f"Creating entity at ({x}, {y})")
+        pos = Vector(self.lib.fixed_from_int(x), self.lib.fixed_from_int(y))
+
+        self.lib.vector_print(pos)
 
         self.lib.client_send_create_entity_message(self.game.contents.client, pos)
 
@@ -155,7 +169,6 @@ class CWars:
 
             # typecast to Entity
             entity = ctypes.cast(entity, ctypes.POINTER(Entity)).contents
-
 
             entities.append(entity)
 

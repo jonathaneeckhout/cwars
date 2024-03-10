@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "common/map.h"
 #include "common/entity.h"
@@ -37,15 +38,6 @@ void map_cleanup(map_t **map)
     *map = NULL;
 }
 
-void map_update(map_t *map, int64_t delta_time)
-{
-    for_each_link(link, map->entities)
-    {
-        entity_t *entity = link_get_data(link);
-        entity_update(entity, delta_time);
-    }
-}
-
 void map_add_entity(map_t *map, void *entity)
 {
     linked_list_append(map->entities, entity);
@@ -68,6 +60,11 @@ void map_print_all_entities(map_t *map)
     for_each_link(link, map->entities)
     {
         entity_t *entity = link_get_data(link);
-        printf("Entity at (%f, %f)\n", entity->position.x, entity->position.y);
+        char buffer[128];
+        memset(buffer, 0, sizeof(buffer));
+        vector_to_string(entity->position, buffer);
+
+        printf("Entity id: %s\n", entity->id);
+        printf("Entity at %s\n", buffer);
     }
 }

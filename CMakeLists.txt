@@ -43,6 +43,7 @@ add_library(cwars_common STATIC ${COMMON_SOURCE_FILES})
 
 target_link_libraries(cwars_common
     m
+    uuid
 )
 
 # Create an executable for cwars_server
@@ -66,14 +67,14 @@ enable_testing()
 # Function to add a test
 function(add_unit_test target target_sources)
     add_executable(${target} ${target_sources} ${ARGN})
-    target_link_libraries(${target} ${CMOCKA_LIBRARIES} m)
+    target_link_libraries(${target} ${CMOCKA_LIBRARIES} m uuid)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
 add_unit_test(test_linked_list test/linked_list/test_linked_list.c src/common/linked_list.c)
 add_unit_test(test_utils test/utils/test_utils.c src/common/utils.c)
-add_unit_test(test_vector test/vector/test_vector.c src/common/vector.c)
-add_unit_test(test_message test/message/test_message.c src/common/message.c src/common/linked_list.c src/common/vector.c src/common/entity.c)
+add_unit_test(test_vector test/vector/test_vector.c src/common/utils.c src/common/vector.c src/common/fixed.c)
+add_unit_test(test_message test/message/test_message.c src/common/message.c src/common/utils.c src/common/linked_list.c src/common/vector.c src/common/fixed.c src/common/entity.c)
 
 
 # Create COVERAGE variable

@@ -65,9 +65,16 @@ static void message_handler_parse_message(client_t *client, game_t *game, messag
             return;
         }
 
-        log_info("Created entity at (%f, %f)", create_entity->position.x, create_entity->position.y);
+        char buffer[128];
+        vector_to_string(entity->position, buffer);
+
+        printf("Created entity at %s\n", buffer);
+
+        log_info("Created entity at %s\n", buffer);
 
         map_add_entity(game->map, entity);
+
+        map_print_all_entities(game->map);
 
         message_create_entity_cleanup(&create_entity);
 

@@ -15,8 +15,6 @@ typedef struct
 map_t *map_init(uint32_t width, uint32_t height);
 void map_cleanup(map_t **map);
 
-void map_update(map_t *map, int64_t delta_time);
-
 void map_add_entity(map_t *map, void *entity);
 void map_remove_entity(map_t *map, void *entity);
 

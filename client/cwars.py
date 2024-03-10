@@ -49,7 +49,7 @@ class MyGame(arcade.Window):
 
         for entity in entities:
             arcade.draw_circle_filled(
-                entity.position.x, entity.position.y, 32, arcade.color.WHITE
+                self.cwars.lib.fixed_to_float(entity.position.x), self.cwars.lib.fixed_to_float(entity.position.y), 32, arcade.color.WHITE
             )
 
         # Code to draw the screen goes here
@@ -69,7 +69,11 @@ class MyGame(arcade.Window):
             entities = self.cwars.get_entities()
 
             for entity in entities:
-                print(f"Jumping entity at ({entity.position.x}, {entity.position.y})")
+                print(f"Entity id: {entity.id}")
+                self.cwars.lib.vector_print(entity.position)
+                print(
+                    f"Jumping entity at ({self.cwars.lib.fixed_to_float(entity.position.x)}, {self.cwars.lib.fixed_to_float(entity.position.y)})"
+                )
 
     def on_update(self, delta_time: float):
         """Movement and game logic"""

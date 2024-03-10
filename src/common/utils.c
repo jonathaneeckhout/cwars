@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <arpa/inet.h>
 
 int64_t get_time()
 {
@@ -25,4 +28,27 @@ int compare_int64(const void *a, const void *b)
     if (arg1 > arg2)
         return 1;
     return 0;
+}
+
+int64_t htonll(int64_t host)
+{
+#ifdef BIG_ENDIAN
+    int high_part = htonl(host >> 32);
+    int low_part = htonl(host & 0xFFFFFFFF);
+    return ((int64_t)low_part << 32) | high_part;
+#else
+
+    return host;
+#endif
+}
+
+int64_t ntohll(int64_t network)
+{
+#ifdef BIG_ENDIAN
+    int high_part = ntohl(network >> 32);
+    int low_part = ntohl(network & 0xFFFFFFFF);
+    return ((int64_t)low_part << 32) | high_part;
+#else
+    return network;
+#endif
 }

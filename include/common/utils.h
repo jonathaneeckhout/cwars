@@ -11,4 +11,7 @@ int64_t get_time();
 int32_t generate_unique_id();
 int compare_int64(const void *a, const void *b);
 
+int64_t htonll(int64_t host);
+int64_t ntohll(int64_t network);
+
 #endif // UTILS_H
