@@ -51,12 +51,17 @@ add_executable(cwars_server ${SERVER_SOURCE_FILES})
 
 target_link_libraries(cwars_server
     cwars_common
+    uv
 )
 
-add_library(cwars_client SHARED ${CLIENT_SOURCE_FILES})
+# add_library(cwars_client SHARED ${CLIENT_SOURCE_FILES})
+
+add_executable(cwars_client ${CLIENT_SOURCE_FILES})
+
 
 target_link_libraries(cwars_client
     cwars_common
+    uv
 )
 
 # Add CMocka library

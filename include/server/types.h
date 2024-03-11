@@ -2,6 +2,7 @@
 #define TYPES_H
 
 #include <stdbool.h>
+#include <uv.h>
 #include <netinet/in.h>
 
 #include "common/linked_list.h"
@@ -26,6 +27,10 @@ typedef struct
 
 typedef struct
 {
+    uv_loop_t *loop;
+    uv_signal_t sigint;
+    uv_timer_t physics_timer;
+    uint64_t last_time;
     bool running;
     server_t *server;
     map_t *map;

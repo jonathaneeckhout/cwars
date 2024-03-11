@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <uv.h>
 
 #include "common/logging.h"
 #include "common/utils.h"
