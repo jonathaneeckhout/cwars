@@ -11,6 +11,7 @@
 typedef struct
 {
     uv_tcp_t uv_client;
+    uv_loop_t *loop;
     struct sockaddr_in addr;
     bool connected;
     char *username;

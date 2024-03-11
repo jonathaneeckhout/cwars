@@ -3,7 +3,7 @@
 
 #include "server/types.h"
 
-client_t *client_init(int sockfd, struct sockaddr_in addr);
+client_t *client_init(uv_loop_t *loop);
 void client_cleanup(client_t **client);
 
 void client_handle_input(client_t *client);

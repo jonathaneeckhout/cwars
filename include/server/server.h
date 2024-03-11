@@ -3,7 +3,7 @@
 
 #include "server/types.h"
 
-server_t *server_init(int port);
+server_t *server_init(uv_loop_t *loop, const char *addr, int port);
 void server_cleanup(server_t **server);
 
 void server_handle_input(server_t *server);

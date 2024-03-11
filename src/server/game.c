@@ -21,7 +21,7 @@ static void game_signal_handler(uv_signal_t *handle, int UNUSED signum)
     game_stop(game);
 }
 
-static void game_input(game_t *game)
+static void game_input(game_t UNUSED *game)
 {
     // server_handle_input(game->server);
 }
@@ -33,7 +33,7 @@ static void game_update(game_t *game, int64_t delta_time)
     map_update(game->map, game, delta_time);
 }
 
-static void game_output(game_t *game)
+static void game_output(game_t UNUSED *game)
 {
     // server_handle_output(game->server);
 }
@@ -128,7 +128,7 @@ game_t *game_init()
 
     game->running = false;
 
-    game->server = server_init(SERVER_PORT);
+    game->server = server_init(game->loop, SERVER_ADDRESS, SERVER_PORT);
     if (game->server == NULL)
     {
         uv_loop_close(game->loop);
@@ -162,15 +162,17 @@ void game_cleanup(game_t **game)
         return;
     }
 
-    map_cleanup(&(*game)->map);
-
-    server_cleanup(&(*game)->server);
-
     uv_close((uv_handle_t *)&(*game)->sigint, NULL);
+
+    // Make sure to stop the physics loop before cleaning up the server and map
 
     uv_close((uv_handle_t *)&(*game)->physics_timer, NULL);
 
-    uv_run((*game)->loop, UV_RUN_DEFAULT);
+    uv_run((*game)->loop, UV_RUN_ONCE);
+
+    server_cleanup(&(*game)->server);
+
+    map_cleanup(&(*game)->map);
 
     uv_loop_close((*game)->loop);
 
