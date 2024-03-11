@@ -10,7 +10,7 @@
 
 typedef struct
 {
-    int sockfd;
+    uv_tcp_t uv_client;
     struct sockaddr_in addr;
     bool connected;
     char *username;
@@ -21,7 +21,8 @@ typedef struct
 
 typedef struct
 {
-    int sockfd;
+    uv_tcp_t uv_server;
+    uv_loop_t *loop;
     linked_list_t *clients;
 } server_t;
 

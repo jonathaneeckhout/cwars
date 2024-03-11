@@ -47,8 +47,6 @@ static void game_physics_timer_callback(uv_timer_t *handle)
 
     game->last_time = current_time;
 
-    printf("delta_time: %ld\n", delta_time);
-
     game_input(game);
     game_update(game, delta_time);
     game_output(game);
