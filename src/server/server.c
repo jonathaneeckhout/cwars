@@ -179,13 +179,14 @@ static void server_remove_client(server_t *server, client_t *client)
 
 static bool server_read_client_input(server_t UNUSED *server, client_t *client)
 {
-
     ssize_t bytes_received = 0;
 
+    // Check if there is no incoming message
     if (client->incomming_message == NULL)
     {
         char header_buffer[MESSAGE_HEADER_SIZE];
 
+        // Peek at the incoming message header
         bytes_received = recv(client->sockfd, header_buffer, sizeof(header_buffer), MSG_PEEK);
         if (bytes_received < 0)
         {
@@ -213,10 +214,12 @@ static bool server_read_client_input(server_t UNUSED *server, client_t *client)
             return false;
         }
 
+        // Initialize the incoming message
         client->incomming_message = incomming_message_init();
 
         memset(header_buffer, 0, sizeof(header_buffer));
 
+        // Read the header into the buffer
         bytes_received = recv(client->sockfd, header_buffer, sizeof(header_buffer), 0);
         if (bytes_received < 0)
         {
@@ -231,6 +234,7 @@ static bool server_read_client_input(server_t UNUSED *server, client_t *client)
             return false;
         }
 
+        // Deserialize the header into a message object
         client->incomming_message->message = message_deserialize(header_buffer, sizeof(header_buffer));
         if (client->incomming_message->message == NULL)
         {
@@ -240,16 +244,20 @@ static bool server_read_client_input(server_t UNUSED *server, client_t *client)
         }
     }
 
+    // Check if there is an incoming message
     if (client->incomming_message != NULL)
-    {   
+    {
+        // Check if the message length is 0
         if (client->incomming_message->message->length == 0)
         {
+            // Append the message to the input message queue
             linked_list_append(client->in_message_queue, client->incomming_message->message);
             client->incomming_message->message = NULL;
             incomming_message_cleanup(&client->incomming_message);
             return true;
         }
 
+        // Read the data into the message buffer
         bytes_received = recv(client->sockfd, client->incomming_message->message->data + client->incomming_message->data_offset, client->incomming_message->message->length - client->incomming_message->data_offset, 0);
         if (bytes_received < 0)
         {
@@ -272,10 +280,13 @@ static bool server_read_client_input(server_t UNUSED *server, client_t *client)
             return false;
         }
 
+        // Update the data offset
         client->incomming_message->data_offset += bytes_received;
 
+        // Check if all the data has been received
         if (client->incomming_message->data_offset == client->incomming_message->message->length)
         {
+            // Append the message to the input message queue
             linked_list_append(client->in_message_queue, client->incomming_message->message);
             client->incomming_message->message = NULL;
             incomming_message_cleanup(&client->incomming_message);
