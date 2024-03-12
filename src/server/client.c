@@ -10,7 +10,7 @@
 
 #include "server/client.h"
 
-client_t *client_init(uv_loop_t *loop)
+client_t *client_init(server_t *server)
 {
     client_t *client = calloc(1, sizeof(client_t));
     if (client == NULL)
@@ -36,9 +36,13 @@ client_t *client_init(uv_loop_t *loop)
         return NULL;
     }
 
-    client->loop = loop;
+    client->server = server;
 
-    uv_tcp_init(loop, &client->uv_client);
+    client->uv_client = malloc(sizeof(uv_tcp_t));
+
+    uv_tcp_init(client->server->loop, client->uv_client);
+
+    client->uv_client->data = client;
 
     client->addr = (struct sockaddr_in){0};
 
@@ -48,6 +52,11 @@ client_t *client_init(uv_loop_t *loop)
     return client;
 }
 
+static void client_on_close_free(uv_handle_t *handle)
+{
+    free(handle);
+}
+
 void client_cleanup(client_t **client)
 {
     if (*client == NULL)
@@ -55,9 +64,7 @@ void client_cleanup(client_t **client)
         return;
     }
 
-    uv_close((uv_handle_t *)&(*client)->uv_client, NULL);
-
-    uv_run((*client)->loop, UV_RUN_ONCE);
+    uv_close((uv_handle_t *)(*client)->uv_client, client_on_close_free);
 
     linked_list_cleanup(&(*client)->out_message_queue, (void (*)(void **)) & message_cleanup);
     linked_list_cleanup(&(*client)->in_message_queue, (void (*)(void **)) & message_cleanup);

@@ -8,10 +8,12 @@
 #include "common/linked_list.h"
 #include "common/map.h"
 
-typedef struct
+typedef struct server_s server_t;
+
+typedef struct _client_t
 {
-    uv_tcp_t uv_client;
-    uv_loop_t *loop;
+    server_t *server;
+    uv_tcp_t *uv_client;
     struct sockaddr_in addr;
     bool connected;
     char *username;
@@ -20,12 +22,12 @@ typedef struct
     linked_list_t *in_message_queue;
 } client_t;
 
-typedef struct
+struct server_s
 {
-    uv_tcp_t uv_server;
+    uv_tcp_t *uv_server;
     uv_loop_t *loop;
     linked_list_t *clients;
-} server_t;
+};
 
 typedef struct
 {
