@@ -41,6 +41,36 @@ void message_cleanup(message_t **message)
     *message = NULL;
 }
 
+incomming_message_t *incomming_message_init()
+{
+    incomming_message_t *incomming_message = calloc(1, sizeof(incomming_message_t));
+    if (incomming_message == NULL)
+    {
+        return NULL;
+    }
+
+    incomming_message->data_offset = 0;
+    incomming_message->message = NULL;
+
+    return incomming_message;
+}
+
+void incomming_message_cleanup(incomming_message_t **incomming_message)
+{
+    if (incomming_message == NULL || *incomming_message == NULL)
+    {
+        return;
+    }
+
+    if ((*incomming_message)->message != NULL)
+    {
+        message_cleanup(&(*incomming_message)->message);
+    }
+
+    free(*incomming_message);
+    *incomming_message = NULL;
+}
+
 void message_serialize(message_t *message, char *buffer, uint32_t *length)
 {
     uint32_t offset = 0;
@@ -106,18 +136,18 @@ message_t *message_deserialize(char *buffer, uint32_t length)
 
     if (message->length > 0)
     {
-        if (length < offset + message->length)
-        {
-            // Not enough data for the variable-size field
-            free(message);
-            return NULL;
-        }
 
         message->data = calloc(1, message->length);
         if (message->data == NULL)
         {
             free(message);
             return NULL;
+        }
+
+        if (length < offset + message->length)
+        {
+            // Not enough data for the variable-size field, don't try to read it
+            return message;
         }
 
         memcpy(message->data, buffer + offset, message->length);
@@ -199,6 +229,7 @@ void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigne
             else
             {
                 log_error("Failed to receive message");
+                printf("errno: %d\n", errno);
                 // Something went wrong, better close the connection
                 if (connected != NULL)
                 {

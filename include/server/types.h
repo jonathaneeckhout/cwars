@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 
 #include "common/linked_list.h"
+#include "common/message.h"
 #include "common/map.h"
 
 typedef struct
@@ -14,6 +15,7 @@ typedef struct
     bool connected;
     char *username;
     bool logged_in;
+    incomming_message_t *incomming_message;
     linked_list_t *out_message_queue;
     linked_list_t *in_message_queue;
 } client_t;

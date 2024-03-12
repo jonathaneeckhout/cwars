@@ -31,6 +31,13 @@ typedef struct
 
 typedef struct
 {
+    uint32_t data_offset;
+    message_t *message;
+
+} incomming_message_t;
+
+typedef struct
+{
     int64_t client_time;
 } message_get_server_time_response_t;
 
@@ -64,6 +71,10 @@ typedef struct
 
 message_t *message_init();
 void message_cleanup(message_t **message);
+
+incomming_message_t *incomming_message_init();
+void incomming_message_cleanup(incomming_message_t **incomming_message);
+
 void message_serialize(message_t *message, char *buffer, uint32_t *length);
 message_t *message_deserialize(char *buffer, uint32_t length);
 

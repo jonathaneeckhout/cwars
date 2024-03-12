@@ -55,6 +55,7 @@ target_link_libraries(cwars_server
 
 add_library(cwars_client SHARED ${CLIENT_SOURCE_FILES})
 
+
 target_link_libraries(cwars_client
     cwars_common
 )

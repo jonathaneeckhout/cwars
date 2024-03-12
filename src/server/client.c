@@ -24,6 +24,7 @@ client_t *client_init(int sockfd, struct sockaddr_in addr)
 
     client->connected = true;
     client->logged_in = false;
+    client->incomming_message = NULL;
 
     client->out_message_queue = linked_list_init();
     if (client->out_message_queue == NULL)
@@ -55,6 +56,11 @@ void client_cleanup(client_t **client)
     if ((*client)->sockfd > 0)
     {
         close((*client)->sockfd);
+    }
+
+    if ((*client)->incomming_message != NULL)
+    {
+        incomming_message_cleanup(&(*client)->incomming_message);
     }
 
     linked_list_cleanup(&(*client)->out_message_queue, (void (*)(void **)) & message_cleanup);

@@ -160,23 +160,141 @@ static void server_check_for_incomming_clients(server_t *server)
     linked_list_append(server->clients, client);
 }
 
+static void server_remove_client(server_t *server, client_t *client)
+{
+    link_t *next_link = server->clients->start;
+    while (next_link != NULL)
+    {
+        client_t *current_client = (client_t *)link_get_data(next_link);
+        link_t *current_link = next_link;
+        next_link = next_link->next;
+
+        if (current_client == client)
+        {
+            linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
+            return;
+        }
+    }
+}
+
+static bool server_read_client_input(server_t UNUSED *server, client_t *client)
+{
+
+    ssize_t bytes_received = 0;
+
+    if (client->incomming_message == NULL)
+    {
+        char header_buffer[MESSAGE_HEADER_SIZE];
+
+        bytes_received = recv(client->sockfd, header_buffer, sizeof(header_buffer), MSG_PEEK);
+        if (bytes_received < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                // No data available
+                return false;
+            }
+            else
+            {
+                log_warning("Failed to receive message while peeking, disconnecting client");
+                server_remove_client(server, client);
+                return false;
+            }
+        }
+        else if (bytes_received == 0)
+        {
+            log_info("Peer disconnected while peeking message");
+            server_remove_client(server, client);
+            return false;
+        }
+        else if (bytes_received < (ssize_t)MESSAGE_HEADER_SIZE)
+        {
+            // Not enough data to read the header
+            return false;
+        }
+
+        client->incomming_message = incomming_message_init();
+
+        memset(header_buffer, 0, sizeof(header_buffer));
+
+        bytes_received = recv(client->sockfd, header_buffer, sizeof(header_buffer), 0);
+        if (bytes_received < 0)
+        {
+            log_warning("Failed to receive message while reading header, disconnecting client");
+            server_remove_client(server, client);
+            return false;
+        }
+        else if (bytes_received == 0)
+        {
+            log_info("Peer disconnected, while reading header");
+            server_remove_client(server, client);
+            return false;
+        }
+
+        client->incomming_message->message = message_deserialize(header_buffer, sizeof(header_buffer));
+        if (client->incomming_message->message == NULL)
+        {
+            log_warning("Failed to deserialize message, disconnecting client");
+            server_remove_client(server, client);
+            return false;
+        }
+    }
+
+    if (client->incomming_message != NULL)
+    {   
+        if (client->incomming_message->message->length == 0)
+        {
+            linked_list_append(client->in_message_queue, client->incomming_message->message);
+            client->incomming_message->message = NULL;
+            incomming_message_cleanup(&client->incomming_message);
+            return true;
+        }
+
+        bytes_received = recv(client->sockfd, client->incomming_message->message->data + client->incomming_message->data_offset, client->incomming_message->message->length - client->incomming_message->data_offset, 0);
+        if (bytes_received < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                // No data available
+                return false;
+            }
+            else
+            {
+                log_warning("Failed to receive message, while reading data, disconnecting client");
+                server_remove_client(server, client);
+                return false;
+            }
+        }
+        else if (bytes_received == 0)
+        {
+            log_info("Peer disconnected, while reading data");
+            server_remove_client(server, client);
+            return false;
+        }
+
+        client->incomming_message->data_offset += bytes_received;
+
+        if (client->incomming_message->data_offset == client->incomming_message->message->length)
+        {
+            linked_list_append(client->in_message_queue, client->incomming_message->message);
+            client->incomming_message->message = NULL;
+            incomming_message_cleanup(&client->incomming_message);
+        }
+    }
+
+    return true;
+}
+
 static void server_handle_clients_input(server_t *server)
 {
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
     {
         client_t *client = (client_t *)link_get_data(next_link);
-        link_t *current_link = next_link;
         next_link = next_link->next;
 
-        client_handle_input(client);
-
-        if (!client->connected)
-        {
-            log_info("Client disconnected");
-            linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
-            continue;
-        }
+        while (server_read_client_input(server, client))
+            ;
     }
 }
 
@@ -185,10 +303,10 @@ static void server_handle_clients_output(server_t *server)
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
     {
-        client_t *client = (client_t *)link_get_data(next_link);
+        // client_t *client = (client_t *)link_get_data(next_link);
         next_link = next_link->next;
 
-        client_handle_output(client);
+        // client_handle_output(client);
     }
 }
 
