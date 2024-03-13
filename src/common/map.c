@@ -38,12 +38,12 @@ void map_cleanup(map_t **map)
     *map = NULL;
 }
 
-void map_add_entity(map_t *map, void *entity)
+void map_add_entity(map_t *map, entity_t *entity)
 {
     linked_list_append(map->entities, entity);
 }
 
-void map_remove_entity(map_t *map, void *entity)
+void map_remove_entity(map_t *map, entity_t *entity)
 {
     for_each_link(link, map->entities)
     {
@@ -53,6 +53,20 @@ void map_remove_entity(map_t *map, void *entity)
             return;
         }
     }
+}
+
+entity_t *map_get_entity_by_id(map_t *map, const char *id)
+{
+    for_each_link(link, map->entities)
+    {
+        entity_t *entity = link_get_data(link);
+        if (strncmp(entity->id, id, 37) == 0)
+        {
+            return entity;
+        }
+    }
+
+    return NULL;
 }
 
 void map_print_all_entities(map_t *map)

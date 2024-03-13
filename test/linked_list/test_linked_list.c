@@ -106,8 +106,6 @@ static void test_remove_the_other(void UNUSED **state)
     assert_true(linked_list_is_empty(list));
 
     int data1 = 1, data2 = 2;
-    printf("ptr data1: %p\n", (void *)&data1);
-    printf("ptr data2: %p\n", (void *)&data2);
     assert_true(linked_list_append(list, &data1));
     assert_int_equal(list->size, 1);
     assert_ptr_equal(link_get_data(list->start), &data1);

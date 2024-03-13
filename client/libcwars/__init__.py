@@ -43,7 +43,6 @@ LinkedListLink._fields_ = [
 class LinkedList(ctypes.Structure):
     _fields_ = [
         ("start", ctypes.POINTER(LinkedListLink)),
-        ("end", ctypes.POINTER(LinkedListLink)),
         ("size", ctypes.c_uint32),
     ]
 

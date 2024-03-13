@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "common/utils.h"
 #include "common/logging.h"
@@ -9,6 +10,56 @@
 #include "client/message_handler.h"
 #include "client/client.h"
 #include "client/latency.h"
+
+static bool message_handler_is_entity_in_get_entities_response(message_get_entities_response_t *response, const char *id)
+{
+    for (uint32_t i = 0; i < response->entity_count; i++)
+    {
+        if (strncmp(response->entities[i].id, id, 37) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void message_handler_handle_get_entities_response(game_t *game, message_get_entities_response_t *response)
+{
+    link_t *next_link = NULL;
+
+    // Update already existing entities in the map and add new ones
+    for (uint32_t i = 0; i < response->entity_count; i++)
+    {
+        entity_t *entity = map_get_entity_by_id(game->map, response->entities[i].id);
+        if (entity != NULL)
+        {
+            entity->position = response->entities[i].position;
+            entity->velocity = response->entities[i].velocity;
+            entity->radius = response->entities[i].radius;
+        }
+        else
+        {
+            entity = entity_init(response->entities[i].position, response->entities[i].velocity, response->entities[i].radius);
+            memcpy(entity->id, response->entities[i].id, 37);
+            map_add_entity(game->map, entity);
+        }
+    }
+
+    // Remove entities that are not in the response
+    next_link = game->map->entities->start;
+    while (next_link != NULL)
+    {
+        entity_t *entity = (entity_t *)next_link->data;
+        next_link = next_link->next;
+
+        if (!message_handler_is_entity_in_get_entities_response(response, entity->id))
+        {
+            map_remove_entity(game->map, entity);
+            entity_cleanup(&entity);
+        }
+    }
+}
 
 static void message_handler_parse_message(game_t *game, message_t *message)
 {
@@ -53,12 +104,7 @@ static void message_handler_parse_message(game_t *game, message_t *message)
             return;
         }
 
-        linked_list_clear(game->map->entities, (void (*)(void **)) & entity_cleanup);
-        for (uint32_t i = 0; i < entities_response->entity_count; i++)
-        {
-            entity_t *entity = entity_init(entities_response->entities[i].position, entities_response->entities[i].velocity, entities_response->entities[i].radius);
-            map_add_entity(game->map, entity);
-        }
+        message_handler_handle_get_entities_response(game, entities_response);
 
         message_return_entities_response_cleanup(&entities_response);
 

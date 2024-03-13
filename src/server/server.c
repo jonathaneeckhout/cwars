@@ -172,8 +172,6 @@ static void server_remove_client(server_t *server, client_t *client)
         if (current_client == client)
         {
             linked_list_remove(server->clients, &current_link, (void (*)(void **)) & client_cleanup);
-
-            printf("Size of clients: %d\n", server->clients->size);
             return;
         }
     }
