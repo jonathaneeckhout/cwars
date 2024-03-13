@@ -88,8 +88,7 @@ message_t *message_deserialize(char *buffer, uint32_t length);
 outgoing_message_t *outgoing_message_init();
 void outgoing_message_cleanup(outgoing_message_t **outgoing_message);
 
-void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigned int max_messages_read, bool *connected);
-
+bool message_read_input(int sockfd, linked_list_t *message_queue, incomming_message_t **incomming_message, bool *error);
 bool message_write_output(int sockfd, linked_list_t *message_queue, outgoing_message_t **outgoing_message, bool *error);
 
 message_t *message_init_ping();

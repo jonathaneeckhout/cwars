@@ -150,7 +150,7 @@ void client_handle_input(client_t *client)
         return;
     }
 
-    message_read_non_blocking(client->sockfd, client->in_message_queue, SERVER_MAX_MESSAGES_READ, &client->connected);
+    message_read_input(client->sockfd, client->in_message_queue, &client->incomming_message, &client->connected);
 }
 
 void client_handle_output(client_t *client)

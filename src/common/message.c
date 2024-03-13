@@ -248,68 +248,124 @@ bool message_write_output(int sockfd, linked_list_t *message_queue, outgoing_mes
     return true;
 }
 
-void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigned int max_messages_read, bool *connected)
+static bool message_handle_receive_error(ssize_t bytes_received, bool *error)
 {
-
-    char buffer[MESSAGE_MAX_MTU];
-    message_t *message = NULL;
-
-    for (unsigned int i = 0; i < max_messages_read; i++)
+    if (bytes_received < 0)
     {
-        ssize_t bytes_received = 0;
-        ssize_t bytes_handled = 0;
-
-        memset(buffer, 0, sizeof(buffer));
-
-        bytes_received = recv(sockfd, buffer, sizeof(buffer), MSG_DONTWAIT);
-        if (bytes_received < 0)
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
-            {
-                // No data available
-                return;
-            }
-            else
-            {
-                log_error("Failed to receive message");
-                printf("errno: %d\n", errno);
-                // Something went wrong, better close the connection
-                if (connected != NULL)
-                {
-                    *connected = false;
-                }
-                return;
-            }
+            // No data available
+            return false;
         }
-        else if (bytes_received == 0)
+        else
         {
-            log_info("Peer disconnected");
-            if (connected != NULL)
+            log_warning("Failed to receive message, disconnecting client");
+            if (error != NULL)
             {
-                *connected = false;
+                *error = true;
             }
-            return;
-        }
-
-        if (message_queue == NULL)
-        {
-            continue;
-        }
-
-        while (bytes_handled < bytes_received)
-        {
-            message = message_deserialize(buffer + bytes_handled, bytes_received - bytes_handled);
-            if (message == NULL)
-            {
-                log_error("Failed to deserialize message");
-                break;
-            }
-
-            linked_list_append(message_queue, message);
-
-            bytes_handled += MESSAGE_HEADER_SIZE + message->length;
+            return false;
         }
     }
+    else if (bytes_received == 0)
+    {
+        log_info("Peer disconnected");
+        if (error != NULL)
+        {
+            *error = true;
+        }
+        return false;
+    }
+    return true;
+}
+
+static bool message_read_message_header(int sockfd, incomming_message_t **incomming_message, bool *error)
+{
+    char header_buffer[MESSAGE_HEADER_SIZE];
+    ssize_t bytes_received = recv(sockfd, header_buffer, sizeof(header_buffer), MSG_PEEK);
+
+    if (!message_handle_receive_error(bytes_received, error))
+    {
+        return false;
+    }
+
+    if (bytes_received < (ssize_t)MESSAGE_HEADER_SIZE)
+    {
+        // Not enough data to read the header
+        return false;
+    }
+
+    *incomming_message = incomming_message_init();
+    memset(header_buffer, 0, sizeof(header_buffer));
+
+    bytes_received = recv(sockfd, header_buffer, sizeof(header_buffer), 0);
+    if (!message_handle_receive_error(bytes_received, error))
+    {
+        return false;
+    }
+
+    (*incomming_message)->message = message_deserialize(header_buffer, sizeof(header_buffer));
+    if ((*incomming_message)->message == NULL)
+    {
+        log_warning("Failed to deserialize message, disconnecting client");
+        if (error != NULL)
+        {
+            *error = true;
+        }
+        return false;
+    }
+
+    return true;
+}
+
+static bool message_read_message_data(int sockfd, linked_list_t *message_queue, incomming_message_t **incomming_message, bool *error)
+{
+    ssize_t bytes_received = recv(sockfd, (*incomming_message)->message->data + (*incomming_message)->data_offset, (*incomming_message)->message->length - (*incomming_message)->data_offset, 0);
+
+    if (!message_handle_receive_error(bytes_received, error))
+    {
+        return false;
+    }
+
+    (*incomming_message)->data_offset += bytes_received;
+
+    if ((*incomming_message)->data_offset == (*incomming_message)->message->length)
+    {
+        linked_list_append(message_queue, (*incomming_message)->message);
+        (*incomming_message)->message = NULL;
+        incomming_message_cleanup(incomming_message);
+    }
+
+    return true;
+}
+
+bool message_read_input(int sockfd, linked_list_t *message_queue, incomming_message_t **incomming_message, bool *error)
+{
+    if (*incomming_message == NULL)
+    {
+        if (!message_read_message_header(sockfd, incomming_message, error))
+        {
+            return false;
+        }
+    }
+
+    if (*incomming_message != NULL)
+    {
+        if ((*incomming_message)->message->length == 0)
+        {
+            linked_list_append(message_queue, (*incomming_message)->message);
+            (*incomming_message)->message = NULL;
+            incomming_message_cleanup(incomming_message);
+            return true;
+        }
+
+        if (!message_read_message_data(sockfd, message_queue, incomming_message, error))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 message_t *message_init_ping()
