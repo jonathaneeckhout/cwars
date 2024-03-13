@@ -29,6 +29,15 @@ int compare_int64(const void *a, const void *b)
         return 1;
     return 0;
 }
+int get_random_int(int min, int max)
+{
+    return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+}
+
+float get_random_float(float min, float max)
+{
+    return (rand() / (float)RAND_MAX) * (max - min) + min;
+}
 
 int64_t htonll(int64_t host)
 {

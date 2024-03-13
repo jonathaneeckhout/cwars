@@ -58,7 +58,7 @@ static void message_handler_parse_message(client_t *client, game_t *game, messag
             return;
         }
 
-        entity_t *entity = entity_init(create_entity->position, vector_create(100, 100), 32);
+        entity_t *entity = entity_init(create_entity->position, vector_create(fixed_from_float(get_random_float(-1.0, 1.0)), fixed_from_float(get_random_float(-1.0, 1.0))), 32);
         if (entity == NULL)
         {
             log_error("Failed to create entity");

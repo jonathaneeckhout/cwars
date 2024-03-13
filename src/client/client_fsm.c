@@ -93,7 +93,7 @@ void client_fsm_run(client_fsm_t *fsm)
         last_time = current_time;
         int64_t elapsed_time = get_time() - current_time;
 
-        int64_t diff = CLIENT_MICROSECONDS_PER_FRAME - elapsed_time;
+        int64_t diff = CLIENT_MILLISECONDS_PER_FRAME - elapsed_time;
         if (diff > 0)
         {
             usleep(diff);

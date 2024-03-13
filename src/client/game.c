@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "common/logging.h"
 #include "common/config.h"
@@ -42,6 +43,9 @@ game_t *game_init()
         log_error("Failed to allocate memory for game");
         return NULL;
     }
+
+    // Seed random number generator
+    srand(time(NULL));
 
     game->client = client_init();
     if (game->client == NULL)

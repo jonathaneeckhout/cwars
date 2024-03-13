@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "common/logging.h"
 #include "common/config.h"
@@ -54,7 +55,7 @@ void game_run(game_t *game)
         last_time = current_time;
         int64_t elapsed_time = get_time() - current_time;
 
-        usleep(MICROSECONDS_PER_FRAME - elapsed_time);
+        usleep(SERVER_MILLISECONDS_PER_FRAME - elapsed_time);
     }
 }
 
@@ -71,6 +72,9 @@ game_t *game_init()
         log_error("Failed to allocate memory for game");
         return NULL;
     }
+
+    // Seed random number generator
+    srand(time(NULL));
 
     game->running = false;
 

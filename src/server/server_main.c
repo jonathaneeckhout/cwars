@@ -18,7 +18,6 @@ void sig_handler(int UNUSED _sig)
 
 int main()
 {
-
     // Initialize the logging system
     logging_init("cwars server", LOG_DEBUG);
 
