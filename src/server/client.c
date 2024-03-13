@@ -76,26 +76,6 @@ void client_cleanup(client_t **client)
     *client = NULL;
 }
 
-void client_handle_input(client_t *client)
-{
-    if (!client->connected)
-    {
-        return;
-    }
-
-    message_read_non_blocking(client->sockfd, client->in_message_queue, SERVER_MAX_MESSAGES_READ, &client->connected);
-}
-
-void client_handle_output(client_t *client)
-{
-    if (!client->connected)
-    {
-        return;
-    }
-
-    message_send_non_blocking(client->sockfd, client->out_message_queue);
-}
-
 void client_update(client_t *client, game_t *game, int64_t UNUSED delta_time)
 {
     if (!client->connected)

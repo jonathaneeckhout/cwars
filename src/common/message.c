@@ -188,52 +188,64 @@ message_t *message_deserialize(char *buffer, uint32_t length)
     return message;
 }
 
-void message_send_non_blocking(int sockfd, linked_list_t *message_queue)
+bool message_write_output(int sockfd, linked_list_t *message_queue, outgoing_message_t **outgoing_message, bool *error)
 {
-    if (message_queue == NULL)
+    if (*outgoing_message == NULL)
     {
-        return;
-    }
 
-    while (!linked_list_is_empty(message_queue))
-    {
-        char buffer[MESSAGE_MAX_MTU];
-        uint32_t length = 0;
-        ssize_t bytes_sent = 0;
-
-        message_t *message = linked_list_pop(message_queue);
-        if (message == NULL)
+        if (linked_list_is_empty(message_queue))
         {
-            return;
+            return false;
         }
 
-        memset(buffer, 0, sizeof(buffer));
+        message_t *message = linked_list_pop(message_queue);
 
-        message_serialize(message, buffer, &length);
+        *outgoing_message = outgoing_message_init();
+        if (*outgoing_message == NULL)
+        {
+            log_error("Failed to initialize outgoing message");
+            return false;
+        }
 
-        bytes_sent = send(sockfd, buffer, length, MSG_DONTWAIT);
+        (*outgoing_message)->length = message->length + MESSAGE_HEADER_SIZE;
+        (*outgoing_message)->data = calloc(1, (*outgoing_message)->length);
+
+        message_serialize(message, (*outgoing_message)->data, &(*outgoing_message)->length);
+
+        message_cleanup(&message);
+    }
+
+    if (*outgoing_message != NULL)
+    {
+        ssize_t bytes_sent = send(sockfd, (*outgoing_message)->data + (*outgoing_message)->data_offset, (*outgoing_message)->length - (*outgoing_message)->data_offset, 0);
         if (bytes_sent < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
             {
-                // The socket is non-blocking and the send would block,
-                // so re-queue the message and try again later.
-                linked_list_push_front(message_queue, message);
-                break;
+                // No data available
+                return false;
             }
             else
             {
-                // An actual error occurred
-                log_error("Failed to send message");
-                message_cleanup(&message);
-                break;
+                log_warning("Failed to send message, disconnecting client");
+                if (error != NULL)
+                {
+                    *error = true;
+                }
+                return false;
             }
         }
         else
         {
-            message_cleanup(&message);
+            (*outgoing_message)->data_offset += bytes_sent;
+            if ((*outgoing_message)->data_offset == (*outgoing_message)->length)
+            {
+                outgoing_message_cleanup(outgoing_message);
+            }
         }
     }
+
+    return true;
 }
 
 void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigned int max_messages_read, bool *connected)

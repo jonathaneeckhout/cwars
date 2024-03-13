@@ -6,9 +6,7 @@
 client_t *client_init(int sockfd, struct sockaddr_in addr);
 void client_cleanup(client_t **client);
 
-void client_handle_input(client_t *client);
-void client_handle_output(client_t *client);
-void client_update(client_t UNUSED *client, game_t UNUSED *game, int64_t UNUSED delta_time);
+void client_update(client_t *client, game_t *game, int64_t delta_time);
 
 void client_send_pong_message(client_t *client);
 void client_send_return_server_time_message(client_t *client, int64_t client_time);

@@ -30,6 +30,8 @@ client_t *client_init()
     client->clock = 0;
     client->latency = 0;
     client->delta_latency = 0;
+    client->incomming_message = NULL;
+    client->outgoing_message = NULL;
 
     client->latency_buffer = linked_list_init();
     if (client->latency_buffer == NULL)
@@ -74,6 +76,16 @@ void client_cleanup(client_t **client)
     }
 
     linked_list_cleanup(&(*client)->latency_buffer, (void (*)(void **)) & latency_info_cleanup);
+
+    if ((*client)->incomming_message != NULL)
+    {
+        incomming_message_cleanup(&(*client)->incomming_message);
+    }
+
+    if ((*client)->outgoing_message != NULL)
+    {
+        outgoing_message_cleanup(&(*client)->outgoing_message);
+    }
 
     linked_list_cleanup(&(*client)->out_message_queue, (void (*)(void **)) & message_cleanup);
 
@@ -148,7 +160,7 @@ void client_handle_output(client_t *client)
         return;
     }
 
-    message_send_non_blocking(client->sockfd, client->out_message_queue);
+    message_write_output(client->sockfd, client->out_message_queue, &client->outgoing_message, NULL);
 }
 
 void client_update(client_t *client, int64_t delta_time)
