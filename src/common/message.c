@@ -259,7 +259,7 @@ static bool message_handle_receive_error(ssize_t bytes_received, bool *error)
         }
         else
         {
-            log_warning("Failed to receive message, disconnecting client");
+            log_warning("Failed to receive message");
             if (error != NULL)
             {
                 *error = true;

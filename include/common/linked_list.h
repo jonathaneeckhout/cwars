@@ -16,7 +16,6 @@ struct _link_t
 typedef struct _linked_list_t
 {
     link_t *start;
-    link_t *end;
     uint32_t size;
 } linked_list_t;
 
@@ -32,6 +31,7 @@ bool linked_list_remove(linked_list_t *list, link_t **link, void (*cleanup_funct
 void *link_get_data(link_t *link);
 bool linked_list_is_empty(linked_list_t *list);
 void *linked_list_pop(linked_list_t *list);
+link_t *linked_list_get_last(linked_list_t *list);
 
 #define for_each_link(item, list) \
     for (link_t *item = list->start; item != NULL; item = item->next)

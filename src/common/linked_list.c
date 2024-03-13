@@ -38,7 +38,6 @@ linked_list_t *linked_list_init()
         return NULL;
     }
     list->start = NULL;
-    list->end = NULL;
     list->size = 0;
 
     return list;
@@ -69,7 +68,6 @@ void linked_list_clear(linked_list_t *list, void (*cleanup_function)(void **))
         list->size--;
     }
     list->start = NULL;
-    list->end = NULL;
 }
 
 bool linked_list_push_front(linked_list_t *list, void *data)
@@ -79,7 +77,6 @@ bool linked_list_push_front(linked_list_t *list, void *data)
     if (list->size == 0)
     {
         list->start = link;
-        list->end = link;
     }
     else
     {
@@ -99,12 +96,16 @@ bool linked_list_append(linked_list_t *list, void *data)
     if (list->size == 0)
     {
         list->start = link;
-        list->end = link;
     }
     else
     {
-        list->end->next = link;
-        list->end = link;
+        link_t *current = list->start;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = link;
+        link->previous = current;
     }
     list->size++;
 
@@ -169,4 +170,14 @@ void *linked_list_pop(linked_list_t *list)
     link_cleanup(&link, NULL);
 
     return data;
+}
+
+link_t *linked_list_get_last(linked_list_t *list)
+{
+    link_t *current = list->start;
+    while (current->next != NULL)
+    {
+        current = current->next;
+    }
+    return current;
 }
