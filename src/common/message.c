@@ -71,6 +71,37 @@ void incomming_message_cleanup(incomming_message_t **incomming_message)
     *incomming_message = NULL;
 }
 
+outgoing_message_t *outgoing_message_init()
+{
+    outgoing_message_t *outgoing_message = calloc(1, sizeof(outgoing_message_t));
+    if (outgoing_message == NULL)
+    {
+        return NULL;
+    }
+
+    outgoing_message->data_offset = 0;
+    outgoing_message->length = 0;
+    outgoing_message->data = NULL;
+
+    return outgoing_message;
+}
+
+void outgoing_message_cleanup(outgoing_message_t **outgoing_message)
+{
+    if (outgoing_message == NULL || *outgoing_message == NULL)
+    {
+        return;
+    }
+
+    if ((*outgoing_message)->data != NULL)
+    {
+        free((*outgoing_message)->data);
+    }
+
+    free(*outgoing_message);
+    *outgoing_message = NULL;
+}
+
 void message_serialize(message_t *message, char *buffer, uint32_t *length)
 {
     uint32_t offset = 0;

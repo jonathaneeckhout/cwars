@@ -38,6 +38,13 @@ typedef struct
 
 typedef struct
 {
+    uint32_t data_offset;
+    uint32_t length;
+    char *data;
+} outgoing_message_t;
+
+typedef struct
+{
     int64_t client_time;
 } message_get_server_time_response_t;
 
@@ -77,6 +84,9 @@ void incomming_message_cleanup(incomming_message_t **incomming_message);
 
 void message_serialize(message_t *message, char *buffer, uint32_t *length);
 message_t *message_deserialize(char *buffer, uint32_t length);
+
+outgoing_message_t *outgoing_message_init();
+void outgoing_message_cleanup(outgoing_message_t **outgoing_message);
 
 void message_read_non_blocking(int sockfd, linked_list_t *message_queue, unsigned int max_messages_read, bool *connected);
 void message_send_non_blocking(int sockfd, linked_list_t *message_queue);

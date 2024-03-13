@@ -301,15 +301,73 @@ static void server_handle_clients_input(server_t *server)
     }
 }
 
+static bool server_write_client_output(server_t *server, client_t *client)
+{
+    if (client->outgoing_message == NULL)
+    {
+
+        if (linked_list_is_empty(client->out_message_queue))
+        {
+            return false;
+        }
+
+        message_t *message = linked_list_pop(client->out_message_queue);
+
+        client->outgoing_message = outgoing_message_init();
+        if (client->outgoing_message == NULL)
+        {
+            log_error("Failed to initialize outgoing message");
+            return false;
+        }
+
+        client->outgoing_message->length = message->length + MESSAGE_HEADER_SIZE;
+        client->outgoing_message->data = calloc(1, client->outgoing_message->length);
+
+        message_serialize(message, client->outgoing_message->data, &client->outgoing_message->length);
+
+        message_cleanup(&message);
+    }
+
+    if (client->outgoing_message != NULL)
+    {
+        ssize_t bytes_sent = send(client->sockfd, client->outgoing_message->data + client->outgoing_message->data_offset, client->outgoing_message->length - client->outgoing_message->data_offset, 0);
+        if (bytes_sent < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                // No data available
+                return false;
+            }
+            else
+            {
+                log_warning("Failed to send message, disconnecting client");
+                server_remove_client(server, client);
+                return false;
+            }
+        }
+        else
+        {
+            client->outgoing_message->data_offset += bytes_sent;
+            if (client->outgoing_message->data_offset == client->outgoing_message->length)
+            {
+                outgoing_message_cleanup(&client->outgoing_message);
+            }
+        }
+    }
+
+    return true;
+}
+
 static void server_handle_clients_output(server_t *server)
 {
     link_t *next_link = server->clients->start;
     while (next_link != NULL)
     {
-        // client_t *client = (client_t *)link_get_data(next_link);
+        client_t *client = (client_t *)link_get_data(next_link);
         next_link = next_link->next;
 
-        // client_handle_output(client);
+        while (server_write_client_output(server, client))
+            ;
     }
 }
 

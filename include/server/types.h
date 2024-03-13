@@ -16,6 +16,7 @@ typedef struct
     char *username;
     bool logged_in;
     incomming_message_t *incomming_message;
+    outgoing_message_t *outgoing_message;
     linked_list_t *out_message_queue;
     linked_list_t *in_message_queue;
 } client_t;
