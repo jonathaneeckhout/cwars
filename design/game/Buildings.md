@@ -1,21 +1,55 @@
 # Buildings
-Buildings are the structural foundation of a player’s settlement.  
-They enable resource production, unit training, technological advancement, and territorial defense.  
-Choosing the right building layout and upgrading key structures is essential for maintaining efficiency and protecting your base.
+Buildings form the structural backbone of your settlement.
+They produce resources, unlock new units, provide storage, and enable military expansion.
+A well-planned layout and balanced construction strategy are essential for growing your economy, training armies, and securing your territory.
+Each building serves a specific role in the production chain—whether gathering raw materials, refining goods, housing workers, or preparing troops for battle.
 
-## Gathering Buildings
-Gathering buildings are structures where workers deliver the resources they collect.  
-These buildings serve as drop-off points that convert gathered materials—such as wood, food, or gold—into usable resources for the player.
+Efficient base development is key to establishing a strong, self-sustaining empire.
 
-Examples include the lumbermill for delivering cut wood, goldmines where workers bring extracted gold, and farms where food is produced and collected.  
-Placing gathering buildings close to resource locations is essential for efficient economy management and minimizing travel time for workers.
+## Woodcutter's Hut
+The Woodcutter’s Hut is the workplace of the WoodCutter.  
+From here, workers head into nearby forests to chop trees and bring back logs for early production.
 
-## Training Centers
-Training centers are structures where you create and upgrade your units.  
-These include the townhall for producing workers, barracks for infantry, stables for mounted units, and temples for magical or spiritual units.  
+## Lumber Mill
+The Lumber Mill is where Carpenters process logs into planks.  
+Planks are required for construction and crafting basic equipment.
 
-## Defenses
-Defensive buildings protect your base from enemy attacks.
-Walls block enemy movement, towers provide ranged fire, and gates allow controlled access to your settlement.
-Strategic placement of defenses is essential to safeguarding your resources and population.
+## Mason's Hut
+The Mason’s Hut houses the Stone Mason.  
+Workers mine and shape stone here, providing strong materials for advanced buildings and defenses.
 
+## Farm
+The Farm is where Farmers grow grain or raise pigs.  
+It forms the base of your food economy and livestock production.
+
+## Mill
+The Mill is operated by Millers who grind harvested grain into flour.  
+Flour is a refined ingredient for producing bread.
+
+## Bakery
+The Bakery is where Bakers turn flour into bread.  
+Bread is a primary food source for workers and soldiers alike.
+
+## Pigsty
+The Pigsty (or Pig Farm) is where pigs are raised using grain.  
+Once grown, they are sent to the Butchery for processing.
+
+## Butchery
+At the Butchery, Butchers slaughter pigs to produce meat and skins.  
+Meat feeds your population and troops, while skins are processed further.
+
+## Tannery
+The Tannery is where Tanners transform raw skins into leather.  
+Leather is vital for crafting armor and some equipment.
+
+## Stable
+The Stable breeds and raises horses for military purposes.  
+It enables the use of fast cavalry and scouting units.
+
+## Workshop
+The Workshop is the workplace of the Craftsman.  
+Here, weapons and armor—such as axes, bows, spears, shields, and leather armor—are produced to equip your military.
+
+## Barracks
+The Barracks is the main training facility for basic military units.  
+It is essential for creating an army capable of defending and expanding your territory.
