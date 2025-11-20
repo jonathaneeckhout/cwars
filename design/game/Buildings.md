@@ -53,3 +53,26 @@ Here, weapons and armor—such as axes, bows, spears, shields, and leather armor
 ## Barracks
 The Barracks is the main training facility for basic military units.  
 It is essential for creating an army capable of defending and expanding your territory.
+
+## Storage
+The Storage is a central warehouse where all types of resources can be safely kept.  
+Serves deliver materials here when no specialized building is available or when resources need to be stockpiled for future use.  
+Upgrading or maintaining sufficient storage capacity is essential to prevent overflow and ensure smooth economic operation.
+
+## School
+The School is the training center for all non-military worker units.  
+Here, new serves are educated and prepared for their specialized roles—such as farmers, woodcutters, millers, and more—at the cost of gold.
+
+## Coal Mine
+The Coal Mine is built directly on top of a coal vein.  
+It allows Miners to extract coal, a crucial fuel source used for smelting metals and powering advanced production buildings.  
+A steady supply of coal is essential for progressing into the metalworking stage of your settlement.
+
+## Gold Mine
+The Gold Mine must be placed on a gold vein.  
+It enables Miners to extract gold ore, which can later be refined into gold bars for advanced equipment and high-value trade goods.  
+Gold production is slow but highly valuable for crafting and late-game economy.
+
+## Gold Foundry
+The Gold Foundry refines gold ore into gold bars using coal as fuel.  
+Skilled Blacksmiths operate this building, melting the raw ore into pure bars.

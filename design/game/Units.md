@@ -43,6 +43,14 @@ Their work contributes both high-quality food for taverns and essential material
 Tanners process skins into leather.  
 Leather is a crucial resource for crafting reinforced armor and other durable equipment.
 
+## Miner
+Miners extract valuable raw materials from underground deposits, including coal, iron ore and gold ore.  
+They are essential for advancing into the metalworking stage of your economy, supplying the resources needed for smelting, forging, and crafting advanced equipment.
+
+## Blacksmith
+The Blacksmith processes raw metals into refined bars by smelting iron ore and gold ore using coal.  
+Refined metal bars form the backbone of advanced crafting, enabling the production of weapons, armor, and other high-tier military equipment.
+
 ## Axe Fighter
 Axe Fighters are frontline melee units equipped with an axe and a shield.  
 They excel in close-range combat and serve as durable ground troops capable of holding the line.
@@ -65,3 +73,20 @@ Skilled in working with wood, leather, and simple metal fittings, the Craftsman 
 
 Craftsmen craft items such as axes, bows, spears, and wooden shields, as well as assemble leather armor.  
 Their workshop serves as the backbone of your army’s equipment production, ensuring soldiers are properly armed and protected.
+
+
+## Caravan
+The Caravan is a special starting unit granted to every new player.  
+It serves as the foundation of your first settlement and represents your initial foothold in the world of Cwars.
+
+The Caravan can move across the world to help players find a safe or strategically valuable location.  
+Once a suitable spot is chosen, the player can deploy the Caravan.  
+Deploying it permanently converts the caravan into the player's first settlement core, creating:
+
+- 1 Storage
+- 3 Serves
+- 3 Builders
+- 15 Gold
+
+After deployment, the Caravan disappears, and the newly spawned workers and Storage form the basis of your emerging economy.  
+Protecting these first units is crucial, as they determine your early survival.

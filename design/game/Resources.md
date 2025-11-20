@@ -47,6 +47,19 @@ Horses are bred and raised to serve as the foundation for fast-moving military u
 They enable cavalry troops to travel quickly across the battlefield, perform scouting missions, and execute rapid flanking maneuvers.  
 Maintaining a healthy stable of horses is essential for any strategy that relies on speed, mobility, or surprise attacks.
 
+## Gold Ore  
+Gold Ore is mined from deep rock deposits and serves as the raw material for producing refined gold.  
+It must be transported to a smeltery before it becomes usable for trade, equipment crafting, or funding advanced military production.
+
+## Coal  
+Coal is a critical fuel resource extracted from underground veins.  
+It is essential for powering smelters, forges, and other high-heat production buildings.  
+Without coal, metalworking and advanced crafting processes cannot function efficiently.
+
+## Gold  
+Gold is the refined product of Gold Ore, smelted using high temperatures and coal.  
+It is a valuable currency resource used for high-level upgrades, elite units, advanced buildings, and special trade opportunities.
+
 ## Leather Armor
 Leather Armor is crafted from tanned leather and provides basic protection for military units.  
 It offers increased survivability without significantly hindering movement, making it ideal for early- to mid-game troops.
