@@ -24,3 +24,22 @@ Whether advancing through cooperation, economic power, or military dominance, pl
 A player's journey ends when all their units are destroyed.  
 Without workers, military forces, or a Caravan to rebuild from, the player loses all presence in the world.  
 At this point, the player can start a new journey with a fresh Caravan and try again to carve out their legacy in Cwars.
+
+## Challenges
+Challenges are introduced in Cwars to ensure players actively manage and maintain both their economy and military.  
+They create pressure to plan strategically, expand thoughtfully, and balance resources, population, and army growth.
+
+### Resources
+Certain resources are scarce in the world, requiring players to constantly explore and expand their settlements.  
+Key resources like gold veins, coal veins, and iron veins are limited, so careful planning and strategic expansion are essential to maintain a steady flow of materials.  
+Players must balance gathering, processing, and trading to ensure their economy and military can keep growing.
+
+### Hunger
+Every unit in Cwars needs food to survive.  
+If units are not regularly fed, they will gradually lose health and eventually die.  
+Maintaining a reliable food supply through farms, mills, bakeries, and taverns is critical to keeping your workforce and army alive and productive.
+
+### Age
+Units in the game age over time and will eventually die of old age.  
+Players must plan ahead by training new workers and military units to replace aging ones, ensuring the settlement remains functional and the army stays strong.  
+Neglecting unit replacement can leave a player vulnerable to economic collapse or military weakness.

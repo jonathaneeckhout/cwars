@@ -76,3 +76,8 @@ Gold production is slow but highly valuable for crafting and late-game economy.
 ## Gold Foundry
 The Gold Foundry refines gold ore into gold bars using coal as fuel.  
 Skilled Blacksmiths operate this building, melting the raw ore into pure bars.
+
+## Tavern
+The Tavern is where standard (non-military) units go to satisfy their hunger.  
+It serves prepared food such as bread or meat, allowing workers to maintain their energy and continue performing their tasks efficiently.  
+A well-supplied Tavern helps keep your workforce productive, preventing hunger-related deads or interruptions in your economy.
