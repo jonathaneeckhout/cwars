@@ -2,6 +2,9 @@
 Stats define the core attributes of each unit.  
 They determine a unit’s effectiveness in combat, survivability, and overall performance within your settlement or army.
 
+## Position
+Represents the unit’s current location on the 2D world map. 
+
 ## Health
 Represents the unit’s life.  
 Units take damage in combat or from starvation.  
