@@ -42,6 +42,41 @@ Get detailed information about a specific building.
 }
 ```
 
+## GET /buildings/storage/{storage_id}
+Get all resources stored at a storage.
+
+**Response:** `200 OK`
+```json
+{
+  "storage_id": "uuid",
+  "storage_capacity": 1000,
+  "storage_used": 450,
+  "resources": {
+    "gold": 150,
+    "logs": 20,
+    "planks": 45,
+    "stones": 30,
+    "grain": 50,
+    "flour": 25,
+    "bread": 15,
+    "pigs": 5,
+    "meat": 10,
+    "skins": 8,
+    "leather": 3,
+    "coal": 12,
+    "iron_ore": 8,
+    "gold_ore": 3,
+    "iron_bars": 2,
+    "gold_bars": 1,
+    "axes": 3,
+    "bows": 2,
+    "spears": 4,
+    "wooden_shields": 5,
+    "leather_armor": 2
+  }
+}
+```
+
 ## POST /buildings/construct
 Construct a new building.
 
