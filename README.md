@@ -121,12 +121,6 @@ The API will be designed for **bot-friendly** interaction:
 - Report issues and suggest features
 - Help others get started
 
-**How to contribute:**
-1. Check out the design documents in `design/` to understand the game
-2. Open an issue to discuss ideas or ask questions
-3. Submit pull requests with improvements
-4. Join discussions about game balance and mechanics
-
 ## Getting Started (For Contributors)
 
 Since we're in the design phase, the best way to get started is:
@@ -164,6 +158,3 @@ Imagine a world where players compete by writing the best bots:
 
 ---
 
-**Status**: Design Phase | **Language**: Python (planned) | **Contributors Needed**: Everyone!
-
-Got questions? Ideas? Want to help? **Open an issue or start a discussion!**
