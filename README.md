@@ -4,7 +4,6 @@
 
 **CWars** is an open-source multiplayer real-time strategy game where players **write code to control their civilizations**. Instead of clicking buttons, players interact with the game world entirely through **REST APIs**, making this a unique fusion of gaming, programming, and strategy.
 
-> **Game meets Code**: Build settlements, manage resources, train armies, and conquer territories - all through the code you write!
 
 ## Project Vision
 
@@ -44,7 +43,6 @@ CWars features interconnected production chains (see [`design/game/Resources.md`
 Trees → Logs → Planks (Construction)
 Grain → Flour → Bread (Basic Food)
 Grain → Pigs → Meat + Skins → Leather (Advanced Food & Armor)
-Coal + Iron Ore → Metal Bars → Weapons & Equipment
 ```
 
 Every step requires the right building and specialized workers!
@@ -73,88 +71,37 @@ Three core pressures create strategic tension (see [`design/game/GameLoop.md`](d
 
 ## Technical Architecture
 
-**Status**: Currently in design phase - no code yet!
+### Network Architecture
+CWars uses a distributed backend architecture designed for **clarity, scalability, and security** over raw performance. See [`design/networking/Architecture.md`](design/networking/Architecture.md) for complete details.
 
-### Planned Stack
-- **Backend**: Python-based REST API servers (scalable multi-instance)
-- **Database**: TBD (needs to support persistent world state)
-- **Architecture**: Multiple API servers behind a load balancer
-- **No Frontend**: Players write client code in any language
+**Key Components**:
+- **Load Balancer (Nginx)**: Distributes traffic across multiple API servers with health checks and SSL termination
+- **API Servers (Flask)**: Stateless REST servers that horizontally scale to handle player load
+- **Rate Limiter**: Token bucket algorithm preventing abuse (100 GET/min, 30 POST/min per player)
+- **Game State Database**: Centralized world state with optimized queries
+- **User Database**: Authentication and player account management
 
-See [`design/networking/cwars_network_architecture.drawio`](design/networking/cwars_network_architecture.drawio) for the network design.
+**Communication Patterns**:
+- **REST API**: Player scripts send commands and query game state
+- **WebSocket**: Real-time event notifications (combat, construction completion, etc.)
+- **Batch Endpoints**: Reduce HTTP overhead for multiple operations
 
-### API Design (In Progress)
-See [`design/networking/apis.MD`](design/networking/apis.MD) - specifications are under development!
+The architecture prioritizes script-driven gameplay - since players write code to control their civilizations, millisecond response times aren't critical. Instead, the design focuses on stable, predictable API contracts that make bot development straightforward.
 
-The API will be designed for **bot-friendly** interaction:
-- Clear state query endpoints
-- Batch operations for efficiency
-- Webhooks or polling for updates
-- RESTful resource design
+### APIs
+All player interaction happens through REST APIs - there is no traditional game client. See [`design/networking/apis/`](design/networking/apis/) for complete API specifications.
 
-## Contributing
-
-**We're just getting started!** This project is in the **design phase**, and we need contributors to:
-
-### Game Design
-- Review and refine game mechanics in `design/game/*.md`
-- Balance resource chains and unit costs
-- Design engaging gameplay loops
-- Define complete API contracts
-
-### Development (Coming Soon)
-- Implement the game engine in Python
-- Build the REST API server
-- Create database schema for game state
-- Develop simulation/tick system
-- Write unit tests
-
-### Documentation
-- Improve design documents
-- Write API documentation
-- Create tutorial content for new players
-- Document bot development strategies
-
-### Community
-- Build example bots
-- Test and provide feedback
-- Report issues and suggest features
-- Help others get started
-
-## Getting Started (For Contributors)
-
-Since we're in the design phase, the best way to get started is:
-
-1. **Read the design docs**: Start with [`design/game/GameLoop.md`](design/game/GameLoop.md) to understand player experience
-2. **Review the systems**: Check out Units, Buildings, Resources, and Stats docs
-3. **Explore the architecture**: Look at [`design/networking/cwars_network_architecture.drawio`](design/networking/cwars_network_architecture.drawio)
-4. **Join the conversation**: Open issues to discuss implementation approaches
-5. **Start coding**: Once you understand the design, help implement it!
+**Core API Modules**:
+- [`api.md`](design/networking/apis/api.md) - Overview and general conventions
+- [`authentication.md`](design/networking/apis/authentication.md) - Login, registration, token management
+- [`world.md`](design/networking/apis/world.md) - Query world state, map data, player visibility
+- [`units.md`](design/networking/apis/units.md) - Unit commands (move, attack, train, feed)
+- [`buildings.md`](design/networking/apis/buildings.md) - Construction, production, upgrades
+- [`batch.md`](design/networking/apis/batch.md) - Batch operations for efficiency
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Learning Goals
 
-This project is perfect for learning:
-- **Game Development**: Real-time simulation, state management, multiplayer systems
-- **API Design**: Building bot-friendly, RESTful interfaces
-- **Python**: Backend development, async programming, testing
-- **Distributed Systems**: Multi-server architecture, load balancing, persistence
-- **Bot Programming**: AI strategies, resource optimization, pathfinding
-- **Open Source Collaboration**: Contributing to a real project with others
-
-## The Dream
-
-Imagine a world where players compete by writing the best bots:
-- Automated resource gathering and production
-- AI-driven military strategies
-- Diplomatic protocols between player bots
-- Economic trading systems
-- Emergent gameplay from bot interactions
-
-**Let's build this together!**
-
----
 
