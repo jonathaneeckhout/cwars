@@ -1,0 +1,135 @@
+services:
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: cwars-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - redis
+    networks:
+      - cwars-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL - User Database
+  user-db:
+    image: postgres:16-alpine
+    container_name: cwars-user-db
+    environment:
+      POSTGRES_DB: cwars_users
+      POSTGRES_USER: cwars_user
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-changeme_user_password}
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - cwars-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cwars_user -d cwars_users"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL - Game State Database
+  game-state-db:
+    image: postgres:16-alpine
+    container_name: cwars-game-state-db
+    environment:
+      POSTGRES_DB: cwars_gamestate
+      POSTGRES_USER: cwars_game
+      POSTGRES_PASSWORD: ${GAME_DB_PASSWORD:-changeme_game_password}
+    volumes:
+      - game-state-db-data:/var/lib/postgresql/data
+    networks:
+      - cwars-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cwars_game -d cwars_gamestate"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+
+  # Redis - Event Bus and Caching
+  redis:
+    image: redis:7-alpine
+    container_name: cwars-redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - cwars-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Commander - Web UI for Redis debugging (optional, dev only)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: cwars-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - cwars-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  # PgAdmin - PostgreSQL Web UI (optional, dev only)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: cwars-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@cwars.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-changeme_admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - user-db
+      - game-state-db
+    networks:
+      - cwars-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+networks:
+  cwars-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  user-db-data:
+    driver: local
+  game-state-db-data:
+    driver: local
+  redis-data:
+    driver: local
+  pgadmin-data:
+    driver: local
